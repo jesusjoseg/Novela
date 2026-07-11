@@ -40,15 +40,15 @@ include 'NovelaData.php';
             </main>
             <aside class="sidebar-area">
                 <h2>Mas Oulares</h2>
-                <div class="to-list">
+                <div class="top-list">
                     <?php
                     $ranking=1;
                     foreach($Novelas as $Novela):
                         if (empty($Novela['Titulo'])) continue;
                     ?>
                 <a href="<?php echo $Novela['Link'];?>" class="to-item">
-                    <div class="to-rank">#<?php echo $ranking++;?></div>
-                    <img class="to-img" src="<?php echo $Novela['Portada'];?>" alt="">
+                    <div class="top-rank">#<?php echo $ranking++;?></div>
+                    <img class="top-img" src="<?php echo $Novela['Portada'];?>" alt="">
                     <div style="overflow: hidden;"></div>
                     <div style="font-size:13px;font-weight:bold;white-space:nowrap;overflow: hidden;"><?php echo htmlspecialchars($Novela['Titulo']) ;?></div>
                     <small style="font-size:11px;"><?php echo htmlspecialchars($Novela['Genero']) ;?></small>

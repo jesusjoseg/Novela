@@ -46,7 +46,7 @@ include 'NovelaData.php';
                     foreach($Novelas as $Novela):
                         if (empty($Novela['Titulo'])) continue;
                     ?>
-                <a href="<?php echo $Novela['Link'];?>" class="to-item">
+                <a href="<?php echo $Novela['Link'];?>" class="top-item">
                     <div class="top-rank">#<?php echo $ranking++;?></div>
                     <img class="top-img" src="<?php echo $Novela['Portada'];?>" alt="">
                     <div style="overflow: hidden;"></div>

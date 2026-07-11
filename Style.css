@@ -179,7 +179,7 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     flex-direction: column;
 
 }
-.to-list{
+.top-list{
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -188,19 +188,19 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     flex: 1;
     min-width: 280px;
 }
-.to-rank{
+.top-rank{
     font-size: 18px;
     font-weight: bold;
     width: 25px;
     text-align: center;
 }
-.to-img{
+.top-img{
     width: 40px;
     height: 55px;
     object-fit: cover;
     border-radius: 4px;
 }
-to-item{
+.top-item{
     display: flex;
     align-items: center;
     gap: 12px;

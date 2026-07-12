@@ -19,7 +19,7 @@
             <a href="Actulizacion.php">Actulizacion</a>
         </li>
         <li>
-            <a href="Bibloteca.php">Bibloteca</a>
+            <a href="biblioteca.php">Biblioteca</a>
         </li>
         <li>
             <div>

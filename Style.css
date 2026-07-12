@@ -109,6 +109,10 @@ header button:hover{
 .hero-content h1{
     margin: 0 0 10px 0;
     font-size: 28px;
+    color: #Ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    line-height: 1.2;
 }
 .hero-content p{
     color: white;
@@ -225,4 +229,30 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+}
+.top-item div[style*="overflow:hidden;"]{
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.container{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.content-area h2{
+    color: #f5ebe6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-bottom:20px ;
+}
+.novela-info{
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: #1a1613;
+    flex-grow: 1;
 }

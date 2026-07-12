@@ -1,7 +1,6 @@
 <?php
 session_start();
 include 'NovelaData.php';
-
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -33,7 +32,10 @@ include 'NovelaData.php';
                         <?php if (empty($Novela['Titulo']))continue;?>
                         <a href="<?php echo $Novela['Link'];?>" class="novela-card">
                             <img src="<?php echo $Novela['Portada'];?>" alt="">
-                            <small><?php echo htmlspecialchars($Novela['Genero']) ;?></small>
+                            <div class="novela-info">
+                                <span class="novela-titulo"><?php echo htmlspecialchars($Novela['Titulo']) ;?></span>
+                                <small class="novela-genero"><?php echo htmlspecialchars($Novela['Genero']) ;?></small>
+                            </div>
                         </a>
                     <?php endforeach;?>
                 </div>
@@ -56,10 +58,9 @@ include 'NovelaData.php';
                 </a>
                 <?php endforeach;?>
                 </div>
-                
             </aside>
         </div>
     </div>
-
+    <?php include'footer.php'?>
 </body>
 </html>

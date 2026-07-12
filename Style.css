@@ -193,6 +193,7 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     font-weight: bold;
     width: 25px;
     text-align: center;
+    color: #ff6b35;
 }
 .top-img{
     width: 40px;
@@ -207,5 +208,15 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     text-decoration: none;
     padding:8px;
     border-radius: 6px;
-
+    background-color: #1a1613;
+    border: 1px solid #26201b;
+    transition: background 0.2s,border-color 0.2s;
+}
+.top-item:hover{
+    background-color: #26201b;
+    border-color: #ff6b35;
+}
+.top-item small{
+    color: #ff6b35;
+    font-weight: 600;
 }

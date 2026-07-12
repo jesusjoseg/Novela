@@ -39,7 +39,7 @@ include 'NovelaData.php';
                 </div>
             </main>
             <aside class="sidebar-area">
-                <h2>Mas Oulares</h2>
+                <h2>Mas Populares</h2>
                 <div class="top-list">
                     <?php
                     $ranking=1;
@@ -49,13 +49,14 @@ include 'NovelaData.php';
                 <a href="<?php echo $Novela['Link'];?>" class="top-item">
                     <div class="top-rank">#<?php echo $ranking++;?></div>
                     <img class="top-img" src="<?php echo $Novela['Portada'];?>" alt="">
-                    <div style="overflow: hidden;"></div>
-                    <div style="font-size:13px;font-weight:bold;white-space:nowrap;overflow: hidden;"><?php echo htmlspecialchars($Novela['Titulo']) ;?></div>
-                    <small style="font-size:11px;"><?php echo htmlspecialchars($Novela['Genero']) ;?></small>
+                    <div style="overflow: hidden;">
+                        <div style="font-size:13px;font-weight:bold;white-space:nowrap;overflow: hidden;"><?php echo htmlspecialchars($Novela['Titulo']) ;?></div>
+                        <small style="font-size:11px;"><?php echo htmlspecialchars($Novela['Genero']) ;?></small>
                     </div>
                 </a>
-                </div>
                 <?php endforeach;?>
+                </div>
+                
             </aside>
         </div>
     </div>

@@ -15,10 +15,20 @@ include 'NovelaData.php';
     <?php include 'header.php'?>
     <div class="container">
         <div class="finder-layout">
-            <aside class="finter-sidebar">
+            <aside class="filter-sidebar">
                 <form id="finder-form">
-                    <div></div>
-                    <div></div>
+                    <div>
+                        <h3>Buscar por titulo</h3>
+                        <input type="text" name="texto" class="finder-input">
+                    </div>
+                    <div>
+                        <h3>Ordena por:</h3>
+                        <select name="orden" class="finder-select">
+                            <option value="">Ultimo Actulizacion</option>
+                            <option value="titulo_asc">Titulo (A-Z)</option>
+                            <option value="titulo_desc">Titulo (Z-A)</option>
+                        </select>
+                    </div>
                     <div class="filter-group">
                         <h3>Generos</h3>
                         <div class="genre-checkboxes">
@@ -71,6 +81,12 @@ include 'NovelaData.php';
                     </div>
                 </form>
             </aside>
+            <main class="result-area">
+                <div class="novela-grid" id="biblioteca-grid">
+
+                </div>
+            </main>
+            <script src="biblioteca.js"></script>
         </div>
     </div>
 </body>

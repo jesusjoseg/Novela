@@ -306,3 +306,30 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     border-bottom: 1px solid #3b3129;
     padding-bottom: 5px;
 }
+.finder-layout{
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+.filter-sidebar{
+    flex: 1;
+    min-width: 260px;
+    background-color: #1a1613;
+    border: 1px solid #3b3129;
+    border-radius: 8px;
+    padding: 20px;
+    height: fit-content;
+}
+.finder-input, .finder-select{
+    width: 100%;
+    background-color: #26201b;
+    border: 1px solid #3b3129;
+    color: #f5ebe6;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    box-sizing: border-box;
+}
+.result-area{
+    flex: 3;
+}

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         if(formData.get('orden')) params.append('orden',formData.get('orden'));
         const generos= formData.getAll('Genero[]');
         generos.forEach(g => params.append('Genero[]',g));
-        fetch(`filtrar_biblioteca.php${params.toString()}`)
+        fetch(`filtrar_biblioteca.php?${params.toString()}`)
         .then(res=>res.json())
         .then(novelas=>{
             if(novelas.length === 0){
@@ -17,13 +17,13 @@ document.addEventListener('DOMContentLoaded',()=>{
                 return;
             }
             grid.innerHTML=novelas.map(novela =>`
-                <a href="${novela.Link}>" class="novela-card">
+                <a href="${novela.Link}" class="novela-card">
                     <img src="${novela.Portada}" alt="${novela.Titulo}">
                     <div class="novela-info">
                         <span class="novela.titulo">${novela.Titulo}</span>
                         <small class="novela-genero">${novela.Genero}</small>
                     </div>
-                </a>`).json('');
+                </a>`).join('');
         })
         .catch(err =>console.error("Erro a filtrar la biblioteca:",err));
     }

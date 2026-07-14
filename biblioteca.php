@@ -54,7 +54,7 @@ include 'NovelaData.php';
                             <label><input type="checkbox" name="Genero[]" value="Cyberpunk">Cyberpunk</label>
                             <label><input type="checkbox" name="Genero[]" value="Mecha">Mecha</label>
                             <label><input type="checkbox" name="Genero[]" value="Apocalptico">Apocalptico</label>
-                            <label><input type="checkbox" name="Genero[]" value="Gender Bender">Gender Bender</label>
+                            <label><input type="checkbox" name="Genero[]" value="GenderBender">Gender Bender</label>
                             <label><input type="checkbox" name="Genero[]" value="Yuri">Yuri</label>
                             <label><input type="checkbox" name="Genero[]" value="Shoujo Ai">Shoujo Ai</label>
                             <label><input type="checkbox" name="Genero[]" value="Yaoi">Yaoi</label>
@@ -82,7 +82,7 @@ include 'NovelaData.php';
                 </form>
             </aside>
             <main class="result-area">
-                <div class="novela-grid" id="biblioteca-grid">
+                <div class="novelas-grid" id="biblioteca-grid">
 
                 </div>
             </main>

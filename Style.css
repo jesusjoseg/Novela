@@ -350,3 +350,28 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
 .result-area{
     flex: 3;
 }
+.form-container{
+    max-width: 450px;
+    margin: 50px auto 0 auto;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+.form-sidebar {
+    width: 100%;
+    box-sizing: border-box;
+}
+.form-title{
+    color: #ff6b35;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.form-group{
+    margin-bottom: 15px;
+}
+.form-group h3{
+    color: #f5ebe6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 600;
+}

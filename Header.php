@@ -50,7 +50,7 @@
                     </li>
                 </ul>
             <?php else:?>
-                <a href="#">Iniciar Sesion</a>
+                <a href="Login.php">Iniciar Sesion</a>
                 /
                 <a href="regristaces.php">Regristase</a>
             <?php endif;?>

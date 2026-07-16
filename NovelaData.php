@@ -31,7 +31,7 @@ $Novelas=[
     ["id"=>5,
     "Titulo"=>"A Misunderstanding-Fueled Journey of a Vampire Princess and a Holy Knight",
     "Portada"=>"src/image/A-MisunderstandingFueled-Journey-of-a-Vampire-Princess-and-a-Holy-Knight.jpg",
-    "Genero"=>"Adventure /  Fantasy / GenderBender",
+    "Genero"=>"Aventura /  Fantasy / GenderBender",
     "Link"=>"#"
     ],
     ["id"=>6,

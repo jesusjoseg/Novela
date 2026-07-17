@@ -14,23 +14,23 @@
             <form action="regristo.php" method="post">
                 <div class="form-group">
                     <h3>Nombre:</h3>
-                    <input type="text" name="" id="">
+                    <input type="text" name="Nombre" id="Nombre"class="finder-input"required>
                 </div>
                 <div class="form-group">
                     <h3>Apellido:</h3>
-                    <input type="text" name="" id="">
+                    <input type="text" name="Apellido" id="Apellido"class="finder-input"required>
                 </div>
                 <div class="form-group">
                     <h3>Correo:</h3>
-                    <input type="email" name="" id="">
+                    <input type="email" name="Correo" id="Correo"class="finder-input"required>
                 </div>
                 <div class="form-group">
                     <h3>Contraseña:</h3>
-                    <input type="password" name="" id="">
+                    <input type="password" name="Contrasena" id="Contrasena"class="finder-input"required>
                 </div>
                 <div class="form-group">
                     <h3>Verifica Contraseña:</h3>
-                    <input type="password" name="" id="">
+                    <input type="password" name="VerificaContrasena" id="VerificaContrasena" class="finder-input"required>
                 </div>
                 <div>
                     <input type="submit" value="Regritaces" class="btn-leer form-btn">

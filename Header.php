@@ -1,3 +1,4 @@
+
 <header>
     <ul>
         <li>
@@ -31,10 +32,10 @@
         </li>
         <script src="Buscador.js"></script>
         <li style="margin-left:auto;">
-            <?php if(isset($_SESSION['usuario'])): ?>
-                Hola <?php echo htmlspecialchars($_SESSION['usuario']);?>
+            <?php if(isset($_SESSION['usuario_nombre'])): ?>
+                Hola <?php echo htmlspecialchars($_SESSION['usuario_nombre']);?>
                 <ul>
-                    <?php if ($_SESSION['rol']==='admin'):?>
+                    <?php if ($_SESSION['usuario_rol']&& $_SESSION['usuario_rol'] === 'admin'):?>
                         <li>
                             <a href="#" id="dash">Dashboard</a>
                             /

@@ -7,5 +7,5 @@ $coon = new mysqli($host,$user,$Pass,$db);
 if($coon->connect_error){
     die("conexion fallida: " . $coon->connect_error);
 }
-echo "conexio completa";
+
 ?>

@@ -37,10 +37,11 @@
                 <ul>
                     <?php if ($_SESSION['usuario_rol']&& $_SESSION['usuario_rol'] === 'admin'):?>
                         <li>
-                            <a href="#" id="dash">Dashboard</a>
-                            /
-                            <a href="#">usuario</a>
+                            <a href="dashboard.php" id="dash">Dashboard</a>
                         </li>
+                        <li>
+                            <a href="#">usuario</a>
+                    </li>
                     <?php else:?>
                         <li>
                             <a href="#">usuario</a>

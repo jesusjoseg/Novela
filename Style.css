@@ -375,3 +375,24 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     font-size: 15px;
     font-weight: 600;
 }
+.tab-btn{
+    background: #222;
+    color: #aaa;
+    border: 1px solid #444;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.tabs-nav{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    justify-content: center;
+}
+.tab-btn:hover{
+    background: #ff9f43;
+    color: #fff;
+    border-color: #ff9f43;
+
+}

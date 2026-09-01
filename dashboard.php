@@ -22,11 +22,19 @@ function reordenaCapitulo($coon,$novela_id){
 </head>
 <body>
     <?php include 'header.php' ?>
-    <div>
-        <aside>
-            <h2>Panel de Control</h2>
+    <div class="container form-container">
+        <aside class="filter-sidebar form-sidebar">
+            <h2 class="form-title">Panel de Control</h2>
             <p>Bienvenido <?php echo htmlspecialchars($_SESSION['usuario_nombre']) ?></p>
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab('tab-novelas')">Registrar Novela</button>
+                <button class="tab-btn">Subir Capitulos</button>
+            </div>
+            <div id="tab-novelas" class="tab-content active">
+                
+            </div>
         </aside>
     </div>
+    <script src="Novela.js"></script>
 </body>
 </html>

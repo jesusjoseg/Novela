@@ -23,6 +23,11 @@ function reordenaCapitulo($coon, $novela_id)
 }
 $mensaje_novela = "";
 $mensaje_Capitulo = "";
+if ($_SERVER['REQUEST_METHOD']==='POST'){
+    if(isset($_POST['accion'])&& $_POST['accion']==='guardar_novela'){
+        
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -137,7 +142,20 @@ $mensaje_Capitulo = "";
                             <option value="--Selecionar">--Selecionar--</option>
                         </select>
                     </div>
-                    <div></div>
+                    <div class="form-group">
+                        <h3>Título del Capitulo</h3>
+                        <input type="text" name="titulo_capitulo" class="finder-input" required>
+                    </div>
+                    <div class="editor-split">
+                        <div class="form-group">
+                            <h3>Contenido</h3>
+                            <textarea name="contenido_markdown" class="finder-input" id="md-editor"></textarea>
+                        </div>
+                        <div>
+                            <h3>Vista previa</h3>
+                            <div id="md-preview" class="box-preview"></div>
+                        </div>
+                    </div>
                     <input type="submit" value="Publicar Capítulo" class="btn-leer form-btn">
                 </form>
             </div>

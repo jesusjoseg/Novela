@@ -469,3 +469,24 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0, 0, 0.5);
 }
+.novela-ficha{
+    margin-top: 15px;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 6px;
+    color: #fff;
+}.novela-contenido{
+    flex: 2;
+    min-width: 300px;
+    color: #fff;
+}
+.novela-titulo-principal{
+    color: #ff6b35;
+    margin-top: 0;
+    font-size: 2.2rem;
+}
+.novela-sinopsis{
+    line-height: 1.6;
+    color: #ddd;
+    white-space: pre-line;
+}

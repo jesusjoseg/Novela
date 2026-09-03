@@ -12,9 +12,9 @@ function reordenaCapitulo($coon, $novela_id)
     $stmt->execute();
     $resultado = $stmt->get_result();
     $nuevo_numero = 1;
-    while ($cap = $resultado->fetch_asoc()) {
+    while ($cap = $resultado->fetch_assoc()) {
         $update = $coon->prepare("UPDATE Capitulos set Capitulo = ? WHERE id = ?");
-        $update->bind_param("i", $nuevo_numero, $cap['id']);
+        $update->bind_param("ii", $nuevo_numero, $cap['id']);
         $update->execute();
         $update->close();
         $nuevo_numero++;
@@ -25,9 +25,64 @@ $mensaje_novela = "";
 $mensaje_Capitulo = "";
 if ($_SERVER['REQUEST_METHOD']==='POST'){
     if(isset($_POST['accion'])&& $_POST['accion']==='guardar_novela'){
-        
+        $titulo = trim($_POST['titulo']??''); 
+        $descripcion = trim($_POST['descripcion']??'');
+        if (isset($_POST['Genero'])&&  is_array($_POST['Genero'])){
+            $genero = implode(', ',$_POST['Genero']);
+        }
+        else{
+            $genero= 'sin Genero';
+        }
+        $portada =trim($_POST['portada']??'');
+        $estados = trim($_POST['estado']??'pendiente');  
+
+        if (!empty($titulo)){
+            $stmt =$coon->prepare("INSERT INTO novela (Titulo,Descripcion,Genero,Portada,link,Estado) VALUES(?,?,?,?,'',?)");
+            if($stmt){
+                $stmt->bind_param("sssss", $titulo,$descripcion,$genero,$portada,$estados);
+                if($stmt->execute()){
+                    $id_novela =$stmt->insert_id;
+
+                    $nombre_limpio= strtolower($titulo);
+                    $nombre_limpio= preg_replace('/[^a-z0-9 -]/','',$nombre_limpio);
+                    $nombre_limpio= str_replace(' ','-',$nombre_limpio);
+                    #aqui quiero que el link se el id/nombre_de_novela/
+                    $link_dinamico ="ver_novela.php?id=".$id_novela."&nombre=". $nombre_limpio;
+                    $update = $coon->prepare("UPDATE novela SET link =? WHERE id = ?");
+                    $update -> bind_param("si",$link_dinamico,$id_novela);
+                    $update->execute();
+                    $update->close();
+                    $mensaje_novela= "¡Novela Regristada con exito".$nombre_limpio."!";
+                }
+                $stmt->close();
+            }
+        }
+    }
+    if (isset($_POST['accion']) && $_POST['accion']==='subir_capitulo'){
+        $novela_id = intval($_POST['novela_id']?? 0);
+        $titulo_capitulo = trim($_POST['titulo_capitulo']??'');
+        $markdown =$_POST['contenido_markdown']??'';
+
+        if ($novela_id>0 && !empty($markdown) && !empty($titulo_capitulo)){
+            $check =$coon->prepare("SELECT MAX(Capitulo) as ultimo from Capitulos WHERE novela_id=?");
+            $check -> bind_param("i",$novela_id);
+            $check->execute();
+            $res= $check->get_result()->fetch_assoc();
+            $num_capitulo = ($res['ultimo'] !==null)? intval($res['ultimo'])+1:1;
+            $check->close();
+            $stmt =$coon->prepare("INSERT INTO Capitulos (novela_id, Capitulo,Titulo,Contenido_markdown) VALUES(?,?,?,?)");
+            if ($stmt){
+                $stmt->bind_param("iiss",$novela_id,$num_capitulo,$titulo_capitulo,$markdown);
+                if ($stmt->execute()){
+                    reordenaCapitulo($coon,$novela_id);
+                    $mensaje_Capitulo="¡Capitulo publicado con Exito!";
+                }
+                $stmt->close();
+            }
+        }
     }
 }
+$listado_novela = $coon->query("SELECT id, Titulo FROM novela ORDER BY Titulo ASC");
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -58,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                     <input type="hidden" name="accion" value="guardar_novela">
                     <div class="form-group">
                         <h3>Titulo:</h3>
-                        <input type="text" name="Titulo" class="finder-input" required>
+                        <input type="text" name="titulo" class="finder-input" required>
                     </div>
                     <div class="form-group">
                         <h3>Genero:</h3>
@@ -117,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                     <div class="form-group">
                         <h3>Estados:</h3>
                         <select name="estado" id="">
-                            <option value="Pediente">Pediente</option>
+                            <option value="Pendiente">Pendiente</option>
                             <option value="Completado">Completado</option>
                             <option value="Pausado">Pausado</option>
                             <option value="Finalizado">Finalizado</option>
@@ -136,10 +191,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST'){
                     </p>
                 <?php endif; ?>
                 <form action="dashboard.php" method="post">
+                    <input type="hidden" name="accion" value="subir_capitulo">
                     <div class="form-group">
                         <h3>Seleciona Novela:</h3>
                         <select name="novela_id" class="finder-input" required>
                             <option value="--Selecionar">--Selecionar--</option>
+                            <?php while ($n= $listado_novela->fetch_assoc()): ?>
+                                <option value="<?php echo $n['id']; ?>"><?php echo htmlspecialchars($n['Titulo']); ?> </option>
+                                <?php endwhile; ?>
                         </select>
                     </div>
                     <div class="form-group">

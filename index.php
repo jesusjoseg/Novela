@@ -1,6 +1,14 @@
 <?php
 session_start();
-include 'NovelaData.php';
+include 'HHH/Conexion.php';
+$query_novelas = "SELECT id, Titulo,Descripcion,Genero,Portada,link FROM novela ORDER BY id DESC";
+$resultado_novela =$coon->query($query_novelas);
+
+$destacada = null;
+if($resultado_novela && $resultado_novela->num_rows>0){
+    $destacada =$resultado_novela->fetch_assoc();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -15,10 +23,10 @@ include 'NovelaData.php';
     <div class="container">
        <?php if (isset($Novelas[1])):?>
         <section class="hero-banner"> 
-            <img class="hero-img" src="<?php echo $Novelas[1]['Portada'];?>"  alt="Destacado">
+            <img class="hero-img" src="<?php echo htmlspecialchars($destacada['Portada']);?>"  alt="Destacado">
             <div class="hero-content">
                 <span id="cambio" >Novela En Tendecias</span>
-                <h1><?php echo htmlspecialchars($Novelas[1]['Titulo']) ;?></h1>
+                <h1><?php echo htmlspecialchars($destacada['Titulo']) ;?></h1>
                 <p><?php echo htmlspecialchars($Novelas[1]['Descricion']) ;?></p>
                 <a href="<?php echo $Novelas[1]['Link'];?>" class="btn-leer">Empezar a Leer</a>
             </div>
@@ -28,8 +36,10 @@ include 'NovelaData.php';
             <main class="content-area">
                 <h2>Catalago de Traducciones</h2>
                 <div class="novelas-grid">
-                    <?php foreach($Novelas as $Novela):?>
-                        <?php if (empty($Novela['Titulo']))continue;?>
+                    <?php  if ($resultado_novela && $resultado_novela->0):
+                        $resultado_novela-data_seek(0);
+                        while ($Novela = $resultado_novela->fetch_assoc()):
+                            if (empty($Novela['Titulo']))continue;?>
                         <a href="<?php echo $Novela['Link'];?>" class="novela-card">
                             <img src="<?php echo $Novela['Portada'];?>" alt="">
                             <div class="novela-info">

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'NovelaData.php';
+include 'HHH/Conexion.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -9,7 +9,6 @@ include 'NovelaData.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="Style.css">
-</head>
 </head>
 <body>
     <?php include 'header.php'?>

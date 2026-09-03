@@ -1,40 +1,48 @@
 <?php
-include 'NovelaData.php';
-$texto= isset($_GET['texto'])?strtolower(trim($_GET['texto'])):'';
-$generos_selecionado= isset($_GET['Genero'])? $_GET['Genero']:[];
-$orden= isset($_GET['orden'])? $_GET['orden']:'';
+include 'HHH/Conexion.php';
+header('Content-Type: application/json; charset=utf-8');
+$texto =isset($_GET['texto'])? trim($_GET['texto']):'';
+$orden= isset($_GET['orden'])? trim($_GET['orden']):'';
+$genero= isset($_GET['Genero']) && is_array($_GET['Genero'])? $_GET['Genero']:[];
+$sql ="SELECT id,Titulo,Genero,Portada,link FROM novela WHERE 1=1";
+$params=[];
+$types = "";
+if(!empty($texto)){
+    $sql.= " AND Titulo LIKE ?";
+    $params[] = '%' . $texto .'%';
+    $types.="s";
+} 
+if(!empty($genero)){
+    foreach ($genero as $g){
+        $sql.= " AND Genero LIKE ?";
+        $params[]= '%' . $g .'%';
+        $types.="s";
+    }
+}
+if ($orden ==='titulo_asc'){
+    $sql.=" ORDER BY Titulo ASC";
+}
+elseif($orden ==='titulo_desc'){
+    $sql.= " ORDER BY Titulo DESC";
+}
+else{
+    $sql.= " ORDER BY id DESC";
+}
+$stmt = $coon->prepare($sql);
+if(!empty($params)){
+    $stmt->bind_param($types,...$params);
+}
+$stmt->execute();
+$res=$stmt->get_result();
 $resultados=[];
-foreach($Novelas as $Novela){
-    if (empty($Novela['Titulo']))continue;
-    $cumple_filtro= true;
-    if ($texto!==''){
-        if(strpos(strtolower($Novela['Titulo']),$texto)===false){
-            $cumple_filtro= false;
-        }
-    }
-    if(!empty($generos_selecionado)&&$cumple_filtro){
-        $generos_novela=array_map('trim', explode('/',strtolower($Novela['Genero'])));
-        foreach($generos_selecionado as $gen_buscado){
-            if (!in_array(strtolower($gen_buscado),$generos_novela)){
-                $cumple_filtro=false;
-                break;
-            }
-        }
-    }
-    if($cumple_filtro){
-        $resultados[]= $Novela;
-    }
+while($row=$res->fetch_assoc()){
+    $resultados[] = [
+        'id'      => $row['id'],
+        'Titulo'  => htmlspecialchars($row['Titulo']),
+        'Genero'  => htmlspecialchars($row['Genero']),
+        'Portada' => htmlspecialchars($row['Portada']),
+        'Link'    => htmlspecialchars($row['link'])];
 }
-if($orden==='titulo_asc'){
-    usort($resultados,function ($a, $b) {
-        return strcmp($a['Titulo'],$b['Titulo']);
-    });
-}
-elseif($orden==='titulo_desc'){
-    usort($resultados,function ($a, $b) {
-        return strcmp($b['Titulo'],$a['Titulo']);
-    });
-}
-header('Content-Type: application/json');
-echo json_encode($resultados);
+$stmt->close();
+echo json_encode($resultados, JSON_UNESCAPED_UNICODE);
 ?>

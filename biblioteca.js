@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded',()=>{
                 <a href="${novela.Link}" class="novela-card">
                     <img src="${novela.Portada}" alt="${novela.Titulo}">
                     <div class="novela-info">
-                        <span class="novela.titulo">${novela.Titulo}</span>
+                        <span class="novela-titulo">${novela.Titulo}</span>
                         <small class="novela-genero">${novela.Genero}</small>
                     </div>
                 </a>`).join('');

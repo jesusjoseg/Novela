@@ -21,14 +21,14 @@ if($resultado_novela && $resultado_novela->num_rows>0){
 <body>
     <?php include 'header.php'?>
     <div class="container">
-       <?php if (isset($Novelas[1])):?>
+       <?php if ($destacada):?>
         <section class="hero-banner"> 
             <img class="hero-img" src="<?php echo htmlspecialchars($destacada['Portada']);?>"  alt="Destacado">
             <div class="hero-content">
                 <span id="cambio" >Novela En Tendecias</span>
                 <h1><?php echo htmlspecialchars($destacada['Titulo']) ;?></h1>
-                <p><?php echo htmlspecialchars($Novelas[1]['Descricion']) ;?></p>
-                <a href="<?php echo $Novelas[1]['Link'];?>" class="btn-leer">Empezar a Leer</a>
+                <p><?php echo htmlspecialchars($destacada['Descripcion']) ;?></p>
+                <a href="<?php echo $destacada['link'];?>" class="btn-leer">Empezar a Leer</a>
             </div>
         </section>
         <?php endif;?>
@@ -36,37 +36,41 @@ if($resultado_novela && $resultado_novela->num_rows>0){
             <main class="content-area">
                 <h2>Catalago de Traducciones</h2>
                 <div class="novelas-grid">
-                    <?php  if ($resultado_novela && $resultado_novela->0):
-                        $resultado_novela-data_seek(0);
+                    <?php  if ($resultado_novela && $resultado_novela->num_rows>0):
+                        $resultado_novela->data_seek(0);
                         while ($Novela = $resultado_novela->fetch_assoc()):
                             if (empty($Novela['Titulo']))continue;?>
-                        <a href="<?php echo $Novela['Link'];?>" class="novela-card">
-                            <img src="<?php echo $Novela['Portada'];?>" alt="">
+                        <a href="<?php echo htmlspecialchars($Novela['link']) ;?>" class="novela-card">
+                            <img src="<?php echo htmlspecialchars($Novela['Portada']);?>" alt="">
                             <div class="novela-info">
                                 <span class="novela-titulo"><?php echo htmlspecialchars($Novela['Titulo']) ;?></span>
                                 <small class="novela-genero"><?php echo htmlspecialchars($Novela['Genero']) ;?></small>
                             </div>
                         </a>
-                    <?php endforeach;?>
+                    <?php endwhile;
+                    endif;?>
                 </div>
             </main>
             <aside class="sidebar-area">
                 <h2>Mas Populares</h2>
                 <div class="top-list">
                     <?php
-                    $ranking=1;
-                    foreach($Novelas as $Novela):
-                        if (empty($Novela['Titulo'])) continue;
+                    if($resultado_novela && $resultado_novela->num_rows>0):
+                        $ranking=1;
+                        $resultado_novela->data_seek(0);
+                        while($Novela=$resultado_novela->fetch_assoc()):
+                            if (empty($Novela['Titulo']))continue;
                     ?>
-                <a href="<?php echo $Novela['Link'];?>" class="top-item">
+                <a href="<?php echo htmlspecialchars($Novela['link']) ;?>" class="top-item">
                     <div class="top-rank">#<?php echo $ranking++;?></div>
-                    <img class="top-img" src="<?php echo $Novela['Portada'];?>" alt="">
+                    <img class="top-img" src="<?php echo htmlspecialchars($Novela['Portada']);?>" alt="">
                     <div style="overflow: hidden;">
                         <div style="font-size:13px;font-weight:bold;white-space:nowrap;overflow: hidden;"><?php echo htmlspecialchars($Novela['Titulo']) ;?></div>
                         <small style="font-size:11px;"><?php echo htmlspecialchars($Novela['Genero']) ;?></small>
                     </div>
                 </a>
-                <?php endforeach;?>
+                <?php endwhile;
+                endif;?>
                 </div>
             </aside>
         </div>

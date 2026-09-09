@@ -29,7 +29,7 @@ if (!isset($coon) || !$coon) {
 }
 
 // Consulta usando la variable $coon
-$query = "SELECT id,Titulo,Descripcion,Portada FROM novela ORDER BY  id DESC";
+$query = "SELECT id, Titulo, Descripcion, Portada, Estado, Visitas, Genero FROM novela ORDER BY Visitas DESC LIMIT 10";
 $resultado = $coon->query($query);
 
 $novelas = array();
@@ -39,10 +39,11 @@ if ($resultado && $resultado->num_rows > 0) {
         $novelas[] = array(
             "id" => (int)$fila['id'],
             "titulo" => $fila['Titulo'],
-            "sinopsi" => $fila['Descripcion'],
+            "sinopsis" => $fila['Descripcion'], // Clave corregida a 'sinopsis'
             "portada" => $fila['Portada'],
             "estado" => $fila['Estado'],
-            "Vistas" =>(int)$fila['Visitas']
+            "genero" => $fila['Genero'],
+            "visitas" => (int)$fila['Visitas']
         );
     }
 }

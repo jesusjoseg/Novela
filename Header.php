@@ -2,7 +2,7 @@
 <header>
     <ul>
         <li>
-            <a href="index.php"><img src="#" alt="Logo"></a>
+            <a href="index.php"><img src="src/image/image.png" alt="Logo"></a>
         </li>
         <li>
             <a href="index.php">Inicio</a>
@@ -17,10 +17,13 @@
             </ul>
         </li>
         <li>
-            <a href="Actulizacion.php">Actulizacion</a>
+            <a href="Actualizacion.php">Actulizacion</a>
         </li>
         <li>
             <a href="biblioteca.php">Biblioteca</a>
+        </li>
+        <li>
+            <a href="Descargar.php">Descargar</a>
         </li>
         <li>
             <div>
@@ -48,13 +51,13 @@
                         </li>
             <?php endif;?>
                     <li>
-                        <a href="#">Cerra sesion</a>
+                        <a href="HHH/Cerra.php">Cerra sesion</a>
                     </li>
                 </ul>
             <?php else:?>
                 <a href="Login.php">Iniciar Sesion</a>
                 /
-                <a href="regristaces.php">Regristase</a>
+                <a href="regristaces.php">Registrarse</a>
             <?php endif;?>
         </li>
     </ul>

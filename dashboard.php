@@ -18,7 +18,7 @@ function reordenaCapitulo($conexion, $novela_id)
         $capitulos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $nuevo_numero = 1;
-        $update = $conexion->prepare("UPDATE capitulos SET capitulo = :capitulo WHERE id = :id");
+        $update = $conexion->prepare('UPDATE capitulos SET "Capitulo" = :capitulo WHERE id = :id');
         
         foreach ($capitulos as $cap) {
             $update->execute([
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($novela_id > 0 && !empty($markdown) && !empty($titulo_capitulo)) {
             try {
                 // Obtener el último número de capítulo asignado
-                $check = $conexion->prepare("SELECT MAX(capitulo) as ultimo FROM capitulos WHERE novela_id = :novela_id");
+                $check = $conexion->prepare('SELECT MAX("Capitulo") as ultimo FROM capitulos WHERE novela_id = :novela_id');
                 $check->execute([':novela_id' => $novela_id]);
                 $res = $check->fetch(PDO::FETCH_ASSOC);
                 

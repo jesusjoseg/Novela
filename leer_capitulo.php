@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'HHH/Conexion.php';
+require_once 'HHH/Conexion.php';
 
 $id_capitulo = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -9,42 +9,45 @@ $cap_anterior = null;
 $cap_siguiente = null;
 
 if ($id_capitulo > 0) {
-    // 1. Obtener los datos del capítulo actual
-    $stmt = $coon->prepare("SELECT id, novela_id, Capitulo, Titulo, Contenido_markdown FROM Capitulos WHERE id = ?");
-    $stmt->bind_param("i", $id_capitulo);
-    $stmt->execute();
-    $res = $stmt->get_result();
+    try {
+        // 1. Obtener los datos del capítulo actual (PostgreSQL PDO con comillas dobles)
+        $stmt = $conexion->prepare('SELECT id, novela_id, "Capitulo", "Titulo", "Contenido_markdown" FROM capitulos WHERE id = :id');
+        $stmt->execute([':id' => $id_capitulo]);
+        $capitulo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($res && $res->num_rows > 0) {
-        $capitulo = $res->fetch_assoc();
-        $novela_id = $capitulo['novela_id'];
-        $num_cap = $capitulo['Capitulo'];
+        if ($capitulo) {
+            $novela_id = $capitulo['novela_id'];
+            $num_cap = $capitulo['Capitulo'];
 
-        // 2. Buscar Capítulo Anterior
-        $stmt_ant = $coon->prepare("SELECT id FROM Capitulos WHERE novela_id = ? AND Capitulo < ? ORDER BY Capitulo DESC LIMIT 1");
-        $stmt_ant->bind_param("ii", $novela_id, $num_cap);
-        $stmt_ant->execute();
-        $res_ant = $stmt_ant->get_result();
-        if ($row_ant = $res_ant->fetch_assoc()) {
-            $cap_anterior = $row_ant['id'];
+            // 2. Buscar Capítulo Anterior
+            $stmt_ant = $conexion->prepare('SELECT id FROM capitulos WHERE novela_id = :novela_id AND "Capitulo" < :num_cap ORDER BY "Capitulo" DESC LIMIT 1');
+            $stmt_ant->execute([
+                ':novela_id' => $novela_id,
+                ':num_cap'   => $num_cap
+            ]);
+            $row_ant = $stmt_ant->fetch(PDO::FETCH_ASSOC);
+            if ($row_ant) {
+                $cap_anterior = $row_ant['id'];
+            }
+
+            // 3. Buscar Capítulo Siguiente
+            $stmt_sig = $conexion->prepare('SELECT id FROM capitulos WHERE novela_id = :novela_id AND "Capitulo" > :num_cap ORDER BY "Capitulo" ASC LIMIT 1');
+            $stmt_sig->execute([
+                ':novela_id' => $novela_id,
+                ':num_cap'   => $num_cap
+            ]);
+            $row_sig = $stmt_sig->fetch(PDO::FETCH_ASSOC);
+            if ($row_sig) {
+                $cap_siguiente = $row_sig['id'];
+            }
         }
-        $stmt_ant->close();
-
-        // 3. Buscar Capítulo Siguiente
-        $stmt_sig = $coon->prepare("SELECT id FROM Capitulos WHERE novela_id = ? AND Capitulo > ? ORDER BY Capitulo ASC LIMIT 1");
-        $stmt_sig->bind_param("ii", $novela_id, $num_cap);
-        $stmt_sig->execute();
-        $res_sig = $stmt_sig->get_result();
-        if ($row_sig = $res_sig->fetch_assoc()) {
-            $cap_siguiente = $row_sig['id'];
-        }
-        $stmt_sig->close();
+    } catch (PDOException $e) {
+        error_log("Error al consultar el capítulo: " . $e->getMessage());
     }
-    $stmt->close();
 }
 
 if (!$capitulo) {
-    header("Location: biblioteca.php");
+    header("Location: index.php");
     exit();
 }
 ?>
@@ -55,7 +58,7 @@ if (!$capitulo) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capítulo <?php echo $capitulo['Capitulo']; ?>: <?php echo htmlspecialchars($capitulo['Titulo']); ?></title>
     <link rel="stylesheet" href="Style.css">
-    <!-- CDN para convertir Markdown a HTML en tiempo real -->
+    <!-- CDN para convertir Markdown a HTML -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -103,7 +106,7 @@ if (!$capitulo) {
                 <?php endif; ?>
             </div>
 
-            <!-- Sección de Comentarios (Caja básica / Sistema externo) -->
+            <!-- Sección de Comentarios -->
             <section class="seccion-comentarios">
                 <h3>Comentarios</h3>
                 <div class="comentarios-caja">
@@ -118,10 +121,36 @@ if (!$capitulo) {
         </main>
     </div>
 
-    <!-- Script para renderizar el texto Markdown de la BD -->
+    <!-- Script para renderizar Markdown con soporte para Notas al Pie -->
     <script>
         const markdownTexto = <?php echo json_encode($capitulo['Contenido_markdown']); ?>;
-        document.getElementById('contenido-markdown').innerHTML = marked.parse(markdownTexto);
+
+        function procesarNotasPie(texto) {
+            if (!texto) return '';
+
+            // 1. Reemplazar las DEFINICIONES de notas al pie [^id]: texto
+            let md = texto.replace(
+                /^\[\^([a-zA-Z0-9_-]+)\]:\s*(.*)$/gm,
+                '<div class="footnote-item" id="fn-$1" style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;"><strong>[$1]</strong> $2 <a href="#fnref-$1" onclick="event.preventDefault(); document.getElementById(\'fnref-$1\')?.scrollIntoView({behavior: \'smooth\'});">↩</a></div>'
+            );
+
+            // 2. Reemplazar las REFERENCIAS [^id] por superíndices
+            md = md.replace(
+                /\[\^([a-zA-Z0-9_-]+)\](?!\:)/g,
+                '<sup class="footnote-ref"><a href="#fn-$1" id="fnref-$1" onclick="event.preventDefault(); document.getElementById(\'fn-$1\')?.scrollIntoView({behavior: \'smooth\'});">[$1]</a></sup>'
+            );
+
+            return md;
+        }
+
+        if (markdownTexto) {
+            const textoProcesado = procesarNotasPie(markdownTexto);
+            if (typeof marked !== 'undefined') {
+                document.getElementById('contenido-markdown').innerHTML = marked.parse(textoProcesado);
+            } else {
+                document.getElementById('contenido-markdown').innerHTML = textoProcesado;
+            }
+        }
     </script>
 </body>
 </html>

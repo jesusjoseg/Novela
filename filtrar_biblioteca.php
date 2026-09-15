@@ -1,48 +1,57 @@
 <?php
-include 'HHH/Conexion.php';
+require_once 'HHH/Conexion.php';
+
 header('Content-Type: application/json; charset=utf-8');
-$texto =isset($_GET['texto'])? trim($_GET['texto']):'';
-$orden= isset($_GET['orden'])? trim($_GET['orden']):'';
-$genero= isset($_GET['Genero']) && is_array($_GET['Genero'])? $_GET['Genero']:[];
-$sql ="SELECT id,Titulo,Genero,Portada,link FROM novela WHERE 1=1";
-$params=[];
-$types = "";
-if(!empty($texto)){
-    $sql.= " AND Titulo LIKE ?";
-    $params[] = '%' . $texto .'%';
-    $types.="s";
+
+$texto  = isset($_GET['texto']) ? trim($_GET['texto']) : '';
+$orden  = isset($_GET['orden']) ? trim($_GET['orden']) : '';
+$genero = isset($_GET['Genero']) && is_array($_GET['Genero']) ? $_GET['Genero'] : [];
+
+$sql = 'SELECT id, "Titulo", "Genero", "Portada", "link" FROM novela WHERE 1=1';
+$params = [];
+
+// 1. Filtro por Título (insensible a mayúsculas/minúsculas)
+if (!empty($texto)) {
+    $sql .= ' AND "Titulo" ILIKE ?';
+    $params[] = '%' . $texto . '%';
 } 
-if(!empty($genero)){
-    foreach ($genero as $g){
-        $sql.= " AND Genero LIKE ?";
-        $params[]= '%' . $g .'%';
-        $types.="s";
+
+// 2. Filtro por Géneros (múltiples tags)
+if (!empty($genero)) {
+    foreach ($genero as $g) {
+        $sql .= ' AND "Genero" ILIKE ?';
+        $params[] = '%' . trim($g) . '%';
     }
 }
-if ($orden ==='titulo_asc'){
-    $sql.=" ORDER BY Titulo ASC";
+
+// 3. Ordenamiento
+if ($orden === 'titulo_asc') {
+    $sql .= ' ORDER BY "Titulo" ASC';
+} elseif ($orden === 'titulo_desc') {
+    $sql .= ' ORDER BY "Titulo" DESC';
+} else {
+    $sql .= ' ORDER BY id DESC';
 }
-elseif($orden ==='titulo_desc'){
-    $sql.= " ORDER BY Titulo DESC";
+
+$resultados = [];
+
+try {
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute($params);
+    $novelas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($novelas as $row) {
+        $resultados[] = [
+            'id'      => $row['id'],
+            'Titulo'  => htmlspecialchars($row['Titulo']),
+            'Genero'  => htmlspecialchars($row['Genero']),
+            'Portada' => htmlspecialchars($row['Portada']),
+            'Link'    => htmlspecialchars($row['link'])
+        ];
+    }
+} catch (PDOException $e) {
+    error_log("Error en la filtración de novelas: " . $e->getMessage());
 }
-else{
-    $sql.= " ORDER BY id DESC";
-}
-$stmt = $coon->prepare($sql);
-if(!empty($params)){
-    $stmt->bind_param($types,...$params);
-}
-$stmt->execute();
-$res=$stmt->get_result();
-$resultados=[];
-while($row=$res->fetch_assoc()){
-    $resultados[] = [
-        'id'      => $row['id'],
-        'Titulo'  => htmlspecialchars($row['Titulo']),
-        'Genero'  => htmlspecialchars($row['Genero']),
-        'Portada' => htmlspecialchars($row['Portada']),
-        'Link'    => htmlspecialchars($row['link'])];
-}
-$stmt->close();
+
 echo json_encode($resultados, JSON_UNESCAPED_UNICODE);
 ?>

@@ -18,6 +18,7 @@ $lista_comentarios = [];
     }
 }
 */
+
 // 2. Obtener la novela desde la base de datos (PostgreSQL/Supabase)
 try {
     $stmt = $conexion->prepare('SELECT id, "Titulo", "Descripcion", "Genero", "Estado", "Portada", "link", "Visitas" FROM novela WHERE id = :id');
@@ -35,9 +36,9 @@ if (!$novela) {
 // 3. Verificar estado de suscripción del usuario en sesión
 $es_vip = $_SESSION['usuario_vip'] ?? $_SESSION['es_vip'] ?? false;
 
-// 4. Obtener la lista de capítulos (incluyendo fecha de creación para la regla de 15 días)
+// 4. Obtener la lista de capítulos (Adaptado a "Capitulo", "Titulo" y "fecha_Publicacion")
 try {
-    $stmt_cap = $conexion->prepare('SELECT id, capitulo, titulo, creado_en FROM capitulos WHERE novela_id = :novela_id ORDER BY capitulo ASC');
+    $stmt_cap = $conexion->prepare('SELECT id, "Capitulo" AS capitulo, "Titulo" AS titulo, "fecha_Publicacion" AS creado_en FROM capitulos WHERE novela_id = :novela_id ORDER BY "Capitulo" ASC');
     $stmt_cap->execute([':novela_id' => $id_novela]);
     $lista_capitulo = $stmt_cap->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'HHH/Conexion.php';
+require_once 'HHH/Conexion.php';
 
 $id_novela = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $novela = null;
@@ -8,67 +8,82 @@ $primer_capitulo_id = null;
 $lista_capitulo = [];
 $lista_comentarios = [];
 
-// 1. Obtener la novela
-$stmt = $coon->prepare("SELECT id, Titulo, Descripcion, Genero, Estado, Portada, link, Visitas FROM novela WHERE ID = ?");
-$stmt->bind_param("i", $id_novela);
-$stmt->execute();
-$res = $stmt->get_result();
-if ($res && $res->num_rows > 0) {
-    $novela = $res->fetch_assoc();
+// 1. Acumular visita SOLO si el usuario hace clic en "Comenzar a Leer"
+/*if (isset($_GET['accion']) && $_GET['accion'] === 'incrementar' && $id_novela > 0) {
+    try {
+        $stmt_visita = $conexion->prepare('UPDATE novela SET "Visitas" = COALESCE("Visitas", 0) + 1 WHERE id = :id');
+        $stmt_visita->execute([':id' => $id_novela]);
+    } catch (PDOException $e) {
+        error_log("Error actualizando visitas: " . $e->getMessage());
+    }
 }
-$stmt->close();
+*/
+// 2. Obtener la novela desde la base de datos (PostgreSQL/Supabase)
+try {
+    $stmt = $conexion->prepare('SELECT id, "Titulo", "Descripcion", "Genero", "Estado", "Portada", "link", "Visitas" FROM novela WHERE id = :id');
+    $stmt->execute([':id' => $id_novela]);
+    $novela = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Error obteniendo novela: " . $e->getMessage());
+}
 
 if (!$novela) {
-    header("Location: biblioteca.php");
+    header("Location: index.php");
     exit();
 }
 
-// 2. Obtener lista de capítulos
-$stmt_cap = $coon->prepare("SELECT id, Capitulo, Titulo FROM Capitulos WHERE novela_id = ? ORDER BY Capitulo ASC");
-$stmt_cap->bind_param("i", $id_novela);
-$stmt_cap->execute();
-$res_cap = $stmt_cap->get_result();
-while ($row = $res_cap->fetch_assoc()) {
-    $lista_capitulo[] = $row;
+// 3. Verificar estado de suscripción del usuario en sesión
+$es_vip = $_SESSION['usuario_vip'] ?? $_SESSION['es_vip'] ?? false;
+
+// 4. Obtener la lista de capítulos (incluyendo fecha de creación para la regla de 15 días)
+try {
+    $stmt_cap = $conexion->prepare('SELECT id, capitulo, titulo, creado_en FROM capitulos WHERE novela_id = :novela_id ORDER BY capitulo ASC');
+    $stmt_cap->execute([':novela_id' => $id_novela]);
+    $lista_capitulo = $stmt_cap->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Error obteniendo capítulos: " . $e->getMessage());
 }
-$stmt_cap->close();
 
 if (!empty($lista_capitulo)) {
     $primer_capitulo_id = $lista_capitulo[0]['id'];
 }
 
-// 3. Procesar el envío de un nuevo comentario (Web)
+// 5. Procesar el envío de un nuevo comentario
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nuevo_comentario'])) {
     $comentario_texto = trim($_POST['nuevo_comentario']);
-    $usuario_id = isset($_SESSION['usuario_id']) ? intval($_SESSION['usuario_id']) : 1; // ID temporal de prueba si no hay sesión
+    $usuario_id = isset($_SESSION['usuario_id']) ? intval($_SESSION['usuario_id']) : null;
 
-    if (!empty($comentario_texto)) {
-        $stmt_ins = $coon->prepare("INSERT INTO comentarios (usuario_id, novela_id, comentario) VALUES (?, ?, ?)");
-        $stmt_ins->bind_param("iis", $usuario_id, $id_novela, $comentario_texto);
-        $stmt_ins->execute();
-        $stmt_ins->close();
+    if (!empty($comentario_texto) && $usuario_id !== null) {
+        try {
+            $stmt_ins = $conexion->prepare("INSERT INTO comentarios (usuario_id, novela_id, comentario) VALUES (:usuario_id, :novela_id, :comentario)");
+            $stmt_ins->execute([
+                ':usuario_id' => $usuario_id,
+                ':novela_id'  => $id_novela,
+                ':comentario' => $comentario_texto
+            ]);
 
-        // Redirigir para evitar reenvío de formulario al recargar
-        header("Location: ver_novela.php?id=" . $id_novela);
-        exit();
+            header("Location: ver_novela.php?id=" . $id_novela);
+            exit();
+        } catch (PDOException $e) {
+            error_log("Error guardando comentario: " . $e->getMessage());
+        }
     }
 }
 
-// 4. Obtener la lista de comentarios
-$stmt_com = $coon->prepare("
-    SELECT c.id, c.comentario AS texto, c.fecha, u.nombre AS usuario 
-    FROM comentarios c 
-    JOIN usuarios u ON c.usuario_id = u.id 
-    WHERE c.novela_id = ? 
-    ORDER BY c.fecha DESC
-");
-$stmt_com->bind_param("i", $id_novela);
-$stmt_com->execute();
-$res_com = $stmt_com->get_result();
-while ($row = $res_com->fetch_assoc()) {
-    $lista_comentarios[] = $row;
+// 6. Obtener la lista de comentarios
+try {
+    $stmt_com = $conexion->prepare("
+        SELECT c.id, c.comentario AS texto, c.creado_en AS fecha, u.nombre AS usuario 
+        FROM comentarios c 
+        JOIN usuarios u ON c.usuario_id = u.id 
+        WHERE c.novela_id = :novela_id 
+        ORDER BY c.creado_en DESC
+    ");
+    $stmt_com->execute([':novela_id' => $id_novela]);
+    $lista_comentarios = $stmt_com->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Error obteniendo comentarios: " . $e->getMessage());
 }
-$stmt_com->close();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -77,6 +92,7 @@ $stmt_com->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($novela['Titulo']); ?> - Lectura Novela</title>
     <link rel="stylesheet" href="Style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <?php include 'header.php'; ?>
@@ -85,9 +101,9 @@ $stmt_com->close();
         <aside class="novela-sidebar">
             <img src="<?php echo htmlspecialchars($novela['Portada']); ?>" class="novela-portada" alt="<?php echo htmlspecialchars($novela['Titulo']); ?>">
             <div class="novela-ficha">
-                <p><strong>Genero: </strong> <?php echo htmlspecialchars($novela['Genero']); ?></p>
+                <p><strong>Género: </strong> <?php echo htmlspecialchars($novela['Genero']); ?></p>
                 <p><strong>Estado: </strong> <?php echo htmlspecialchars($novela['Estado']); ?></p>
-                <p><strong>Visitas: </strong> <?php echo htmlspecialchars($novela['Visitas']); ?></p>
+                <p><strong>Visitas: </strong> <?php echo htmlspecialchars($novela['Visitas'] ?? 0); ?></p>
             </div>
         </aside>
         <main class="novela-contenido">
@@ -97,7 +113,8 @@ $stmt_com->close();
             
             <div class="novela-acciones">
                 <?php if ($primer_capitulo_id): ?>
-                    <a href="leer_capitulo.php?id=<?php echo $primer_capitulo_id; ?>" class="btn-leer">Comenzar a Leer</a>
+                    <!-- Redirige activando el parámetro accion=incrementar para sumar la visita -->
+                    <a href="ver_novela.php?id=<?php echo $id_novela; ?>&accion=incrementar" class="btn-leer" onclick="window.location.href='leer_capitulo.php?id=<?php echo $primer_capitulo_id; ?>'; return false;">Comenzar a Leer</a>
                 <?php else: ?>
                     <span class="btn-disabled">Sin capítulos disponibles</span>
                 <?php endif; ?>
@@ -107,11 +124,32 @@ $stmt_com->close();
                 <h3>Lista de Capítulos</h3>
                 <?php if (!empty($lista_capitulo)): ?>
                     <ul class="lista_capitulos">
-                        <?php foreach ($lista_capitulo as $cap): ?>
-                            <li>
-                                <a href="leer_capitulo.php?id=<?php echo $cap['id']; ?>">
-                                    Capítulo <?php echo $cap['Capitulo']; ?>: <?php echo htmlspecialchars($cap['Titulo']); ?>
-                                </a>
+                        <?php 
+                        $fecha_actual = new DateTime();
+                        foreach ($lista_capitulo as $cap): 
+                            $num_cap = intval($cap['capitulo']);
+                            
+                            // Evaluar bloqueo por fecha (15 días de antigüedad)
+                            $bloqueado = false;
+                            if ($num_cap > 15 && !$es_vip) {
+                                $fecha_cap = new DateTime($cap['creado_en'] ?? 'now');
+                                $diferencia_dias = $fecha_actual->diff($fecha_cap)->days;
+                                if ($diferencia_dias < 15) {
+                                    $bloqueado = true;
+                                }
+                            }
+                        ?>
+                            <li class="<?php echo $bloqueado ? 'capitulo-bloqueado' : ''; ?>">
+                                <?php if ($bloqueado): ?>
+                                    <span class="cap-link deshabilitado">
+                                        <i class="fa-solid fa-lock"></i> Capítulo <?php echo $num_cap; ?>: <?php echo htmlspecialchars($cap['titulo']); ?> 
+                                        <small>(Disponible con Suscripción o en <?php echo (15 - $diferencia_dias); ?> días)</small>
+                                    </span>
+                                <?php else: ?>
+                                    <a href="leer_capitulo.php?id=<?php echo $cap['id']; ?>">
+                                        Capítulo <?php echo $num_cap; ?>: <?php echo htmlspecialchars($cap['titulo']); ?>
+                                    </a>
+                                <?php endif; ?>
                             </li>
                         <?php endforeach; ?>  
                     </ul>
@@ -124,11 +162,14 @@ $stmt_com->close();
             <div class="seccion-comentarios">
                 <h3>Comentarios (<?php echo count($lista_comentarios); ?>)</h3>
 
-                <!-- Formulario para publicar comentarios -->
-                <form method="POST" class="form-comentario">
-                    <textarea name="nuevo_comentario" placeholder="Escribe tu opinión sobre esta novela..." required></textarea>
-                    <button type="submit" class="btn-comentar">Publicar Comentario</button>
-                </form>
+                <?php if (isset($_SESSION['usuario_id'])): ?>
+                    <form method="POST" class="form-comentario">
+                        <textarea name="nuevo_comentario" placeholder="Escribe tu opinión sobre esta novela..." required></textarea>
+                        <button type="submit" class="btn-comentar">Publicar Comentario</button>
+                    </form>
+                <?php else: ?>
+                    <p><em>Debes iniciar sesión para publicar comentarios.</em></p>
+                <?php endif; ?>
 
                 <!-- Listado de Comentarios -->
                 <div class="lista-comentarios">
@@ -151,6 +192,6 @@ $stmt_com->close();
         </main>
        </div> 
     </div>
-    <?php include'footer.php'?>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

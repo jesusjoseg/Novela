@@ -53,10 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!empty($titulo)) {
             try {
-                // Inserción inicial usando la secuencia de Supabase (RETURNING id)
-                $sqlInsert = "INSERT INTO novela (titulo, descripcion, genero, portada, link, estado) 
-                              VALUES (:titulo, :descripcion, :genero, :portada, '', :estado) 
-                              RETURNING id";
+                // Inserción sin enviar la columna usuario_id
+                $sqlInsert = 'INSERT INTO novela (
+                            "Titulo", "Descripcion", "Genero", "Portada", "link", "Estado", 
+                            "Visitas", "es_oficial", "estado_revision"
+                          ) 
+                          VALUES (
+                            :titulo, :descripcion, :genero, :portada, \'\', :estado, 
+                            0, TRUE, \'aprobado\'
+                          ) 
+                          RETURNING id';
                 
                 $stmt = $conexion->prepare($sqlInsert);
                 $stmt->execute([
@@ -76,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $link_dinamico = "ver_novela.php?id=" . $id_novela . "&nombre=" . $nombre_limpio;
 
                 // Actualizar el link en la base de datos
-                $update = $conexion->prepare("UPDATE novela SET link = :link WHERE id = :id");
+                $update = $conexion->prepare('UPDATE novela SET "link" = :link WHERE id = :id');
                 $update->execute([
                     ':link' => $link_dinamico,
                     ':id'   => $id_novela
@@ -107,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $num_capitulo = ($res && $res['ultimo'] !== null) ? intval($res['ultimo']) + 1 : 1;
 
                 // Insertar el nuevo capítulo
-                $stmt = $conexion->prepare("INSERT INTO capitulos (novela_id, capitulo, titulo, contenido_markdown) 
-                                            VALUES (:novela_id, :capitulo, :titulo, :markdown)");
+                $stmt = $conexion->prepare('INSERT INTO capitulos (novela_id, "Capitulo", "Titulo", "Contenido_markdown") 
+                                            VALUES (:novela_id, :capitulo, :titulo, :markdown)');
                 
                 $stmt->execute([
                     ':novela_id' => $novela_id,
@@ -129,9 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 3. Obtener el listado de novelas para el desplegable (Select)
+// 3. Obtener el listado de novelas para el desplegable (usando alias para PostgreSQL)
 try {
-    $stmtNovelas = $conexion->query("SELECT id, titulo FROM novela ORDER BY titulo ASC");
+    $stmtNovelas = $conexion->query('SELECT id, "Titulo" AS titulo FROM novela ORDER BY "Titulo" ASC');
     $listado_novela = $stmtNovelas->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $listado_novela = [];
@@ -149,6 +155,7 @@ $nombre_usuario = $_SESSION['usuario_nombre'] ?? $_SESSION['nombre'] ?? 'Adminis
     <title>NovelaFox -- Dashboard Administrativo</title>
     <link rel="stylesheet" href="Style.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-footnote/dist/index.umd.min.js"></script>
 </head>
 
 <body>

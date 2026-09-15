@@ -88,5 +88,6 @@ include 'HHH/Conexion.php';
             <script src="biblioteca.js"></script>
         </div>
     </div>
+    <?php include'footer.php'?>
 </body>
 </html>

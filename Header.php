@@ -43,11 +43,11 @@
                             <a href="dashboard.php" id="dash">Dashboard</a>
                         </li>
                         <li>
-                            <a href="#">usuario</a>
+                            <a href="Usuario.php">usuario</a>
                     </li>
                     <?php else:?>
                         <li>
-                            <a href="#">usuario</a>
+                            <a href="Usuario.php">usuario</a>
                         </li>
             <?php endif;?>
                     <li>

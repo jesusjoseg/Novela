@@ -151,5 +151,6 @@ $stmt_com->close();
         </main>
        </div> 
     </div>
+    <?php include'footer.php'?>
 </body>
 </html>

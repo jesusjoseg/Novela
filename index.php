@@ -1,27 +1,22 @@
 <?php
 session_start();
 require_once 'HHH/Conexion.php';
-
 try {
-    // 1. Obtener el catálogo reciente (limitado a 24 novelas)
     $stmtCat = $conexion->prepare('SELECT id, "Titulo", "Descripcion", "Genero", "Portada", "link" 
                                    FROM novela 
                                    ORDER BY id DESC 
-                                   LIMIT 24');
+                                   LIMIT 30');
     $stmtCat->execute();
     $novelas = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
-
-    // Novela destacada (primera de la lista)
+    
     $destacada = $novelas[0] ?? null;
 
-    // 2. Obtener las novelas verdaderamente más populares (limitado a 5)
     $stmtPop = $conexion->prepare('SELECT id, "Titulo", "Genero", "Portada", "link" 
                                    FROM novela 
                                    ORDER BY "Visitas" DESC 
                                    LIMIT 10');
     $stmtPop->execute();
     $populares = $stmtPop->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     $novelas = [];
     $populares = [];
@@ -40,7 +35,6 @@ try {
 </head>
 <body>
     <?php include 'header.php'; ?>
-    
     <div class="container">
        <?php if ($destacada): ?>
         <section class="hero-banner"> 
@@ -53,7 +47,6 @@ try {
             </div>
         </section>
         <?php endif; ?>
-
         <div class="main-layout">
             <main class="content-area">
                 <h2>Catálogo de Traducciones</h2>
@@ -74,7 +67,6 @@ try {
                     <?php endif; ?>
                 </div>
             </main>
-
             <aside class="sidebar-area">
                 <h2>Más Populares</h2>
                 <div class="top-list">
@@ -98,7 +90,6 @@ try {
             </aside>
         </div>
     </div>
-
     <?php include 'footer.php'; ?>
 </body>
 </html>

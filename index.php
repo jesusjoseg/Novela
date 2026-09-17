@@ -49,6 +49,11 @@ try {
         <?php endif; ?>
         <div class="main-layout">
             <main class="content-area">
+                <h2>Ultima Actulizacion</h2>
+            </main>
+        </div>
+        <div class="main-layout">
+            <main class="content-area">
                 <h2>Catálogo de Traducciones</h2>
                 <div class="novelas-grid">
                     <?php if (!empty($novelas)): ?>

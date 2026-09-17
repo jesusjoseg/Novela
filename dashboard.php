@@ -169,6 +169,9 @@ $nombre_usuario = $_SESSION['usuario_nombre'] ?? $_SESSION['nombre'] ?? 'Adminis
             <div class="tabs-nav">
                 <button class="tab-btn active" onclick="switchTab('tab-novelas')">Registrar Novela</button>
                 <button class="tab-btn" onclick="switchTab('tab-capitulo')">Subir Capítulos</button>
+                <button class="tab-btn" onclick="switchTab('tab-edita')">Edita Novela</button>
+                <button class="tab-btn" onclick="switchTab('tab-editacap')">Edita Capitul</button>
+                <button class="tab-btn" onclick="switchTab('tab-creator')">sistemas de Creador</button>
             </div>
 
             <!-- Pestaña: Registrar Novela -->

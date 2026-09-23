@@ -21,7 +21,7 @@ $lista_comentarios = [];
 
 // 2. Obtener la novela desde la base de datos (PostgreSQL/Supabase)
 try {
-    $stmt = $conexion->prepare('SELECT id, "Titulo", "Descripcion", "Genero", "Estado", "Portada", "link", "Visitas" FROM novela WHERE id = :id');
+    $stmt = $conexion->prepare('SELECT id, "Titulo", "Descripcion", "Genero", "Estado", "Portada", "link", "Visitas" ,"autor_original"FROM novela WHERE id = :id');
     $stmt->execute([':id' => $id_novela]);
     $novela = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -102,6 +102,7 @@ try {
         <aside class="novela-sidebar">
             <img src="<?php echo htmlspecialchars($novela['Portada']); ?>" class="novela-portada" alt="<?php echo htmlspecialchars($novela['Titulo']); ?>">
             <div class="novela-ficha">
+                <p><strong>Autor:</strong> <?php echo htmlspecialchars($novela['autor_original']) ?></p>
                 <p><strong>Género: </strong> <?php echo htmlspecialchars($novela['Genero']); ?></p>
                 <p><strong>Estado: </strong> <?php echo htmlspecialchars($novela['Estado']); ?></p>
                 <p><strong>Visitas: </strong> <?php echo htmlspecialchars($novela['Visitas'] ?? 0); ?></p>

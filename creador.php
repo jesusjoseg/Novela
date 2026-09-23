@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'HHH/Conexion.php';
+require_once __DIR__ . '/HHH/Conexion.php';
 
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: login.php');
@@ -8,22 +8,70 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 $usuario_id     = $_SESSION['usuario_id'];
-$usuario_nombre = $_SESSION['usuario_nombre'] ?? 'Autor';
+$usuario_nombre = $_SESSION['usuario_nombre'] ?? $_SESSION['nombre'] ?? 'Autor';
 $mensaje        = "";
 $error          = "";
 
-// Función para procesar la imagen de portada y convertirla automáticamente a WebP
+// 1. Verificación de permisos de usuario desde Supabase
+$rol_actual = 'lector';
+$resUser = supabase_request('usuario?select=id,nombre,email,rol&id=eq.' . $usuario_id, 'GET');
+if (!isset($resUser['error']) && is_array($resUser) && count($resUser) > 0) {
+    $rol_actual = $resUser[0]['rol'] ?? 'lector';
+    if (!empty($resUser[0]['nombre'])) {
+        $usuario_nombre = $resUser[0]['nombre'];
+    }
+}
+
+// Redirigir a la pantalla de solicitud si no tiene permisos de creador o admin
+if (!in_array(strtolower($rol_actual), ['creador', 'admin'])) {
+    header('Location: solicitar_creador.php');
+    exit();
+}
+
+// Listas de Géneros y Plataformas (exactas al TSX)
+$lista_generos = [
+    'Accion', 'Aventura', 'Artes Marciales', 'Supervivencia', 'Militar',
+    'Fantasia', 'Alta Fantasia', 'Isekai', 'Reencarnacion', 'Transmigracion',
+    'Xianxia', 'Xuanhuan', 'Wuxia', 'Fantasía Urbana', 'Magia',
+    'Sistema', 'LitRPG', 'Videojuegos', 'Ciencia Ficcion', 'Cyberpunk',
+    'Mecha', 'Apocalptico', 'GenderBender', 'Yuri', 'Shoujo Ai',
+    'Yaoi', 'Shounen Ai', 'Romance', 'Comedia Romantica', 'Harem',
+    'Harem Inverso', 'Drama', 'Tragedia', 'Misterio', 'Psicologico',
+    'Horror', 'Sobrenatural', 'Slice of Life', 'Comedia', 'Vida Escolar',
+    'Historico', 'Realeza', 'Deportes', 'Mature', 'Ecchi'
+];
+
+$plataformas_origen = [
+    'Obra Inédita',
+    'Wattpad',
+    'Webnovel',
+    'Royal Road',
+    'Scribble Hub',
+    'Otra Plataforma'
+];
+
+// Función para procesar y optimizar la imagen portada a WebP
 function procesarEInsertarWebp($file, $destinoDir = 'uploads/portadas/') {
     if (!file_exists($destinoDir)) {
         mkdir($destinoDir, 0777, true);
     }
 
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, ['png', 'jpg', 'jpeg'])) {
-        return ['error' => 'Solo se permiten imágenes en formato PNG o JPG.'];
+    if (!in_array($ext, ['png', 'jpg', 'jpeg', 'webp'])) {
+        return ['error' => 'Solo se permiten imágenes en formato PNG, JPG o WEBP.'];
     }
 
-    // Cargar imagen según el formato original
+    $nombreArchivo = 'portada_' . $GLOBALS['usuario_id'] . '_' . time() . '.webp';
+    $rutaFinal     = $destinoDir . $nombreArchivo;
+
+    if ($ext === 'webp') {
+        if (move_uploaded_file($file['tmp_name'], $rutaFinal)) {
+            return ['ruta' => $rutaFinal];
+        } else {
+            return ['error' => 'Error al guardar la imagen WebP.'];
+        }
+    }
+
     if ($ext === 'png') {
         $img = imagecreatefrompng($file['tmp_name']);
         imagepalettetotruecolor($img);
@@ -37,59 +85,75 @@ function procesarEInsertarWebp($file, $destinoDir = 'uploads/portadas/') {
         return ['error' => 'Error al procesar la imagen seleccionada.'];
     }
 
-    // Nombre único para el archivo WebP
-    $nombreArchivo = 'portada_' . uniqid() . '.webp';
-    $rutaFinal     = $destinoDir . $nombreArchivo;
-
-    // Convertir y guardar en formato WebP con calidad 80
     imagewebp($img, $rutaFinal, 80);
     imagedestroy($img);
 
     return ['ruta' => $rutaFinal];
 }
 
-// PROCESAR FORMULARIO DE NUEVA NOVELA ORIGINAL
+// 2. Procesar el formulario POST de creación de novela
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'crear_novela') {
-    $titulo   = trim($_POST['titulo'] ?? '');
-    $sipnosis = trim($_POST['sipnosis'] ?? '');
+    $titulo            = trim($_POST['titulo'] ?? '');
+    $descripcion       = trim($_POST['descripcion'] ?? '');
+    $autor_original    = trim($_POST['autor_original'] ?? '');
+    $plataforma_origen = trim($_POST['plataforma_origen'] ?? 'Obra Inédita');
+    $link_origen       = trim($_POST['link_origen'] ?? '');
+    $acepta_terminos   = isset($_POST['acepta_terminos']);
 
-    if (!empty($titulo) && isset($_FILES['portada']) && $_FILES['portada']['error'] === UPLOAD_ERR_OK) {
-        $resultadoImagen = procesarEInsertarWebp($_FILES['portada']);
+    $generos_seleccionados = isset($_POST['Genero']) && is_array($_POST['Genero']) ? $_POST['Genero'] : [];
 
-        if (isset($resultadoImagen['error'])) {
-            $error = $resultadoImagen['error'];
+    if (empty($titulo) || empty($descripcion)) {
+        $error = "Por favor completa el título y la descripción.";
+    } elseif (empty($generos_seleccionados)) {
+        $error = "Debes seleccionar al menos un género.";
+    } elseif ($plataforma_origen !== 'Obra Inédita' && empty($link_origen)) {
+        $error = "Ingresa el enlace directo a tu historia en " . htmlspecialchars($plataforma_origen) . ".";
+    } elseif (!$acepta_terminos) {
+        $error = "Debes confirmar que tu novela no viola derechos de autor ni proviene de una versión web protegida.";
+    } elseif (!isset($_FILES['portada']) || $_FILES['portada']['error'] !== UPLOAD_ERR_OK) {
+        $error = "Debes seleccionar una imagen de portada para tu novela.";
+    } else {
+        $resImagen = procesarEInsertarWebp($_FILES['portada']);
+
+        if (isset($resImagen['error'])) {
+            $error = $resImagen['error'];
         } else {
-            try {
-                // Se asigna automáticamente el usuario_nombre como autor original
-                $sql = 'INSERT INTO novela ("Titulo", "Sipnosis", "Portada", "autor_original", "estado_revision", "usuario_id") 
-                        VALUES (:titulo, :sipnosis, :portada, :autor, \'pendiente\', :usuario_id)';
-                $stmt = $conexion->prepare($sql);
-                $stmt->execute([
-                    ':titulo'    => $titulo,
-                    ':sipnosis'  => $sipnosis,
-                    ':portada'   => $resultadoImagen['ruta'],
-                    ':autor'     => $usuario_nombre,
-                    ':usuario_id'=> $usuario_id
-                ]);
-                $mensaje = "¡Tu obra original fue enviada a revisión! Un administrador la revisará antes de que puedas publicar capítulos.";
-            } catch (PDOException $e) {
-                error_log("Error crear novela: " . $e->getMessage());
-                $error = "Ocurrió un error al registrar tu novela en la base de datos.";
+            $generoCadena = implode(', ', $generos_seleccionados);
+            $autorFinal   = !empty($autor_original) ? $autor_original : $usuario_nombre;
+
+            $dataNovela = [
+                'Titulo'            => $titulo,
+                'Descripcion'       => $descripcion,
+                'Genero'            => $generoCadena,
+                'Portada'           => $resImagen['ruta'],
+                'link'              => !empty($link_origen) ? $link_origen : null,
+                'plataforma_origen' => $plataforma_origen,
+                'link_origen'       => !empty($link_origen) ? $link_origen : null,
+                'Estado'            => 'En emisión',
+                'Visitas'           => 0,
+                'autor_original'    => $autorFinal,
+                'traductor_ingles'  => null,
+                'usuario_id'        => $usuario_id,
+                'es_oficial'        => false,
+                'estado_revision'   => 'pendiente'
+            ];
+
+            $resInsert = supabase_request('novela', 'POST', $dataNovela);
+
+            if (!isset($resInsert['error'])) {
+                $mensaje = "¡Tu historia ha sido enviada para revisión por el administrador!";
+            } else {
+                $error = "No se pudo registrar la novela. Intenta nuevamente.";
             }
         }
-    } else {
-        $error = "Por favor ingresa un título y adjunta una imagen de portada (PNG o JPG).";
     }
 }
 
-// CONSULTAR LAS OBRAS REGISTRADAS POR ESTE CREADOR
+// 3. Consultar novelas creadas por el usuario actual
 $mis_novelas = [];
-try {
-    $stmt = $conexion->prepare('SELECT id, "Titulo", "Portada", "estado_revision" FROM novela WHERE "usuario_id" = :uid ORDER BY id DESC');
-    $stmt->execute([':uid' => $usuario_id]);
-    $mis_novelas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    error_log("Error al listar novelas: " . $e->getMessage());
+$resNovelas = supabase_request('novela?select=id,Titulo,Portada,estado_revision&usuario_id=eq.' . $usuario_id . '&order=id.desc', 'GET');
+if (!isset($resNovelas['error']) && is_array($resNovelas)) {
+    $mis_novelas = $resNovelas;
 }
 ?>
 <!DOCTYPE html>
@@ -99,110 +163,257 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Creador - Foxnovel</title>
     <link rel="stylesheet" href="Style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .creador-container { max-width: 900px; margin: 30px auto; padding: 0 15px; }
+        .page-title { color: #ff6b35; font-size: 1.8rem; font-weight: bold; text-align: center; margin-bottom: 4px; }
+        .page-subtitle { color: #8e8e93; font-size: 0.95rem; text-align: center; margin-bottom: 25px; }
+        
+        .form-section { background: #1a1613; border: 1px solid #26201b; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+        .form-label { color: #ffffff; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; display: block; margin-top: 15px; }
+        .form-input {
+            width: 100%;
+            background-color: #14110f;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #26201b;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        .form-input:focus { border-color: #ff6b35; outline: none; }
+        textarea.form-input { resize: vertical; min-height: 100px; }
+
+        /* Chips de Géneros */
+        .generos-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #14110f;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #26201b;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .chip-checkbox { display: none; }
+        .chip-label {
+            background: #201a16;
+            border: 1px solid #332b24;
+            color: #b0a8a0;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .chip-checkbox:checked + .chip-label {
+            background: #ff6b35;
+            border-color: #ff6b35;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Chips de Plataforma */
+        .plataformas-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+        .plat-radio { display: none; }
+        .plat-label {
+            background: #14110f;
+            border: 1px solid #26201b;
+            color: #8e8e93;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .plat-radio:checked + .plat-label {
+            background: #ff6b35;
+            border-color: #ff6b35;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        /* Caja de Términos */
+        .terms-box {
+            background: #14110f;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #26201b;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .terms-text { color: #d1d1d6; font-size: 0.85rem; line-height: 1.4; }
+
+        .btn-submit {
+            width: 100%;
+            background-color: #ff6b35;
+            color: #ffffff;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background-color: #e05a2b; }
+
+        /* Vista previa portada */
+        .portada-preview-box { text-align: center; margin-bottom: 10px; }
+        #img-preview { width: 120px; height: 180px; object-fit: cover; border-radius: 8px; display: none; margin: 0 auto 10px; border: 1px solid #26201b; }
+    </style>
 </head>
 <body>
     <?php include 'header.php'; ?>
 
-    <div class="container" style="max-width: 1000px; margin: 30px auto;">
-        <h2 style="color: #ff6b35;">✍️ Publicar Obra Original</h2>
-        
-        <?php if ($mensaje): ?><div class="alert alert-success"><?php echo htmlspecialchars($mensaje); ?></div><?php endif; ?>
-        <?php if ($error): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
+    <div class="creador-container">
+        <h1 class="page-title">Panel de Creador</h1>
+        <p class="page-subtitle">Publica tu historia original para revisión</p>
 
-        <!-- FORMULARIO DE REGISTRO DE NOVELA ORIGINAL -->
-        <div class="filter-sidebar form-sidebar" style="margin-bottom: 30px;">
-            <h3 style="color: #f5ebe6; border-bottom: 1px solid #3b3129; padding-bottom: 10px;">Registrar Nueva Novela Original</h3>
-            
+        <?php if ($mensaje): ?>
+            <div style="background: #1f3a2b; color: #4ade80; border: 1px solid #2e7d32; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;">
+                <?php echo htmlspecialchars($mensaje); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($error): ?>
+            <div style="background: #3a1f1f; color: #ef4444; border: 1px solid #d9534f; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- FORMULARIO DE PUBLICACIÓN -->
+        <div class="form-section">
             <form action="creador.php" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="accion" value="crear_novela">
 
-                <div class="form-group">
-                    <label>Título de la Obra:</label>
-                    <input type="text" name="titulo" class="finder-input" placeholder="Escribe el nombre de tu historia" required>
+                <!-- Portada -->
+                <label class="form-label">Portada de la Novela *</label>
+                <div class="portada-preview-box">
+                    <img id="img-preview" alt="Vista previa de portada">
+                    <input type="file" name="portada" id="portada_input" accept="image/png, image/jpeg, image/webp" class="form-input" required onchange="previewImagen(event)">
                 </div>
 
-                <div class="form-group">
-                    <label>Portada de la obra (Sube una imagen PNG o JPG $\rightarrow$ se optimizará a WebP):</label>
-                    <input type="file" name="portada" accept="image/png, image/jpeg" class="finder-input" required style="padding: 8px;">
+                <!-- Título -->
+                <label class="form-label">Título de la Novela *</label>
+                <input type="text" name="titulo" class="form-input" placeholder="Ej. El Despertar del Dragón" required>
+
+                <!-- Géneros -->
+                <label class="form-label">Géneros *</label>
+                <div class="generos-grid">
+                    <?php foreach ($lista_generos as $g): ?>
+                        <div>
+                            <input type="checkbox" name="Genero[]" value="<?php echo htmlspecialchars($g); ?>" id="gen_<?php echo htmlspecialchars($g); ?>" class="chip-checkbox">
+                            <label for="gen_<?php echo htmlspecialchars($g); ?>" class="chip-label">+ <?php echo htmlspecialchars($g); ?></label>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
-                <div class="form-group">
-                    <label>Sinopsis / Descripción corta:</label>
-                    <textarea name="sipnosis" class="finder-input" rows="4" placeholder="¿De qué trata tu novela?" style="resize: vertical;"></textarea>
+                <!-- Sinopsis -->
+                <label class="form-label">Sinopsis / Descripción *</label>
+                <textarea name="descripcion" class="form-input" placeholder="Escribe un resumen atractivo de tu historia..." required></textarea>
+
+                <!-- Autor Original -->
+                <label class="form-label">Autor Original (Opcional)</label>
+                <input type="text" name="autor_original" class="form-input" placeholder="<?php echo htmlspecialchars($usuario_nombre); ?>">
+
+                <!-- Plataforma de Origen -->
+                <label class="form-label">¿Publicaste esta novela en otra plataforma?</label>
+                <div class="plataformas-row">
+                    <?php foreach ($plataformas_origen as $idx => $plat): ?>
+                        <div>
+                            <input type="radio" name="plataforma_origen" value="<?php echo htmlspecialchars($plat); ?>" id="plat_<?php echo $idx; ?>" class="plat-radio" <?php echo $idx === 0 ? 'checked' : ''; ?> onchange="toggleLinkInput(this.value)">
+                            <label for="plat_<?php echo $idx; ?>" class="plat-label"><?php echo htmlspecialchars($plat); ?></label>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
-                <button type="submit" class="btn-leer form-btn">Enviar a Revisión</button>
+                <!-- Campo dinámico de URL -->
+                <div id="box-link-origen" style="display: none;">
+                    <label class="form-label" id="lbl-link">Enlace a tu historia *</label>
+                    <input type="url" name="link_origen" id="input_link_origen" class="form-input" placeholder="https://...">
+                </div>
+
+                <!-- Declaración de Términos -->
+                <div class="terms-box">
+                    <input type="checkbox" name="acepta_terminos" id="acepta_terminos" value="1" required style="width: 18px; height: 18px; accent-color: #ff6b35;">
+                    <label for="acepta_terminos" class="terms-text">
+                        Declaro que soy el autor original de esta novela y que <strong style="color: #ff6b35;">tengo los derechos</strong> para publicarla. Entiendo que un administrador la revisará.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-submit">🚀 Enviar Novela a Revisión</button>
             </form>
         </div>
 
-        <!-- LISTA DE OBRAS REGISTRADAS -->
-        <div class="filter-sidebar form-sidebar">
-            <h3 style="color: #f5ebe6;">Mis Obras Registradas</h3>
+        <!-- MIS OBRAS REGISTRADAS -->
+        <div class="form-section">
+            <h3 style="color: #f5ebe6; margin-top: 0; border-bottom: 1px solid #26201b; padding-bottom: 10px;">Mis Obras Registradas</h3>
 
             <?php if (!empty($mis_novelas)): ?>
                 <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
                     <?php foreach ($mis_novelas as $nov): ?>
-                        <div style="display: flex; gap: 15px; background: #1a1613; padding: 15px; border-radius: 8px; align-items: center; border: 1px solid #3b3129;">
-                            <img src="<?php echo htmlspecialchars($nov['Portada']); ?>" style="width: 65px; height: 90px; object-fit: cover; border-radius: 4px;">
+                        <div style="display: flex; gap: 15px; background: #14110f; padding: 15px; border-radius: 8px; align-items: center; border: 1px solid #26201b;">
+                            <img src="<?php echo htmlspecialchars($nov['Portada']); ?>" style="width: 60px; height: 85px; object-fit: cover; border-radius: 6px;">
                             <div style="flex-grow: 1;">
-                                <h4 style="margin: 0; color: #f5ebe6;"><?php echo htmlspecialchars($nov['Titulo']); ?></h4>
-                                <span class="badge-rol" style="margin-top: 5px; display: inline-block; background: <?php echo ($nov['estado_revision'] ?? '') === 'aprobado' ? '#2e7d32' : '#d9534f'; ?>;">
+                                <h4 style="margin: 0; color: #f5ebe6; font-size: 1rem;"><?php echo htmlspecialchars($nov['Titulo']); ?></h4>
+                                <span style="margin-top: 6px; display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; background: <?php echo ($nov['estado_revision'] ?? '') === 'aprobado' ? '#2e7d32' : '#d9534f'; ?>; color: #fff;">
                                     <?php echo strtoupper($nov['estado_revision'] ?? 'PENDIENTE'); ?>
                                 </span>
                             </div>
                             
                             <div>
                                 <?php if (($nov['estado_revision'] ?? '') === 'aprobado'): ?>
-                                    <a href="redactar_capitulo.php?novela_id=<?php echo $nov['id']; ?>" class="btn-creador" style="text-decoration: none;">➕ Redactar Capítulo</a>
+                                    <a href="redactar_capitulo.php?novela_id=<?php echo $nov['id']; ?>" class="btn-submit" style="text-decoration: none; padding: 8px 14px; font-size: 0.85rem; display: inline-block; margin: 0;">➕ Redactar Capítulo</a>
                                 <?php else: ?>
-                                    <button class="btn-creador" disabled style="opacity: 0.5; cursor: not-allowed;" title="Aún está pendiente de aprobación por el administrador">🔒 En Revisión</button>
+                                    <button class="btn-submit" disabled style="opacity: 0.5; cursor: not-allowed; padding: 8px 14px; font-size: 0.85rem; margin: 0;">🔒 En Revisión</button>
                                 <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p style="color: #b0a8a0; margin-top: 15px;">Aún no has registrado ninguna novela original.</p>
+                <p style="color: #8e8e93; margin-top: 15px;">Aún no has registrado ninguna novela original.</p>
             <?php endif; ?>
         </div>
-
-        <!-- GUÍA DE FORMATO MARKDOWN -->
-        <div class="filter-sidebar form-sidebar" style="margin-top: 30px;">
-            <h3 style="color: #ff6b35;">📖 Guía Práctica de Markdown para Autores</h3>
-            <p style="color: #b0a8a0; font-size: 0.9em;">Aplica estas etiquetas al escribir el texto de tus capítulos para formatearlo fácilmente:</p>
-            
-            <table style="width: 100%; color: #f5ebe6; font-size: 0.9em; border-collapse: collapse; margin-top: 10px;">
-                <thead>
-                    <tr style="border-bottom: 1px solid #3b3129; text-align: left; color: #ff6b35;">
-                        <th style="padding: 8px;">Lo que escribes</th>
-                        <th style="padding: 8px;">Resultado en pantalla</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="border-bottom: 1px solid #2a221c;">
-                        <td style="padding: 8px;"><code>**Texto resaltado**</code></td>
-                        <td style="padding: 8px;"><strong>Texto resaltado</strong></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a221c;">
-                        <td style="padding: 8px;"><code>*Texto en cursiva*</code></td>
-                        <td style="padding: 8px;"><em>Texto en cursiva</em></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a221c;">
-                        <td style="padding: 8px;"><code># Capítulo 1</code> / <code>## Título de Escena</code></td>
-                        <td style="padding: 8px;"><strong style="font-size: 1.1em;">Títulos y Encabezados</strong></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a221c;">
-                        <td style="padding: 8px;"><code>Palabra[^1]</code> y <code>[^1]: Explicación o nota</code></td>
-                        <td style="padding: 8px;">Palabra<sup>1</sup> (Notas a pie de página)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><code>---</code></td>
-                        <td style="padding: 8px;">Separador de escena (Línea)</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
+
+    <script>
+        // Muestra la vista previa de la portada seleccionada
+        function previewImagen(event) {
+            const input = event.target;
+            const img = document.getElementById('img-preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Muestra/oculta el campo de enlace según la plataforma elegida
+        function toggleLinkInput(valor) {
+            const box = document.getElementById('box-link-origen');
+            const lbl = document.getElementById('lbl-link');
+            const input = document.getElementById('input_link_origen');
+
+            if (valor !== 'Obra Inédita') {
+                box.style.display = 'block';
+                lbl.textContent = 'Enlace a tu historia en ' + valor + ' *';
+                input.placeholder = 'https://www.' + valor.toLowerCase().replace(/\s+/g, '') + '.com/...';
+                input.required = true;
+            } else {
+                box.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
+        }
+    </script>
 </body>
 </html>

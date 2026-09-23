@@ -1,22 +1,43 @@
 <?php
-// conexion.php - Conexión global a la base de datos Supabase PostgreSQL
+// HHH/Conexion.php
 
-$host     = 'aws-0-us-east-2.pooler.supabase.com'; // Dirección de tu Pooler
-$port     = '6543';                                 // Puerto del Pooler IPv4
-$dbname   = 'postgres';
-$user     = 'postgres.ahprflxvnrovrwxaojrw';       // Usuario con referencia del proyecto
-$password = '2P9YTrOLrDXvP7FW';                             // Reemplaza por tu contraseña real
+define('SUPABASE_URL', 'https://ahprflxvnrovrwxaojrw.supabase.co/rest/v1');
+define('SUPABASE_KEY', 'sb_publishable_W0IkvLXPpoLZ0fNBk_RENg_iNcnFRuf');
 
-$dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
+/**
+ * Función global para realizar peticiones a la API REST de Supabase
+ */
+function supabase_request($endpoint, $method = 'GET', $body = null) {
+    $url = SUPABASE_URL . '/' . $endpoint;
+    
+    $headers = [
+        'apikey: ' . SUPABASE_KEY,
+        'Authorization: Bearer ' . SUPABASE_KEY,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
+    ];
 
-try {
-    $conexion = new PDO($dsn, $user, $password, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ]);
-} catch (PDOException $e) {
-    // En producción es recomendable registrar el error en un log y no exponer detalles sensibles
-    die("Error de conexión a la base de datos: " . $e->getMessage());
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+    if ($body !== null && in_array($method, ['POST', 'PATCH', 'PUT'])) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+    }
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode >= 400) {
+        return ['error' => true, 'status' => $httpCode, 'message' => $response];
+    }
+
+    return json_decode($response, true);
 }
+
+// Variable bandera para validar la inclusión correcta del archivo
+$conexion = true; 
 ?>

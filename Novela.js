@@ -36,6 +36,68 @@ document.addEventListener('DOMContentLoaded', () => {
         editor.addEventListener('input', updatepreview);
         updatepreview();
     }
+
+    // --- NUEVA LÓGICA PARA EDITAR NOVELAS Y CAPÍTULOS ---
+
+    // 1. Cargar datos de la Novela seleccionada para editar
+    const selectEditNovela = document.getElementById('select_edit_novela');
+    if (selectEditNovela) {
+        selectEditNovela.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                document.getElementById('edit_titulo').value = selectedOption.getAttribute('data-titulo') || '';
+                document.getElementById('edit_portada').value = selectedOption.getAttribute('data-portada') || '';
+                document.getElementById('edit_estado').value = selectedOption.getAttribute('data-estado') || 'Pendiente';
+                document.getElementById('edit_descripcion').value = selectedOption.getAttribute('data-descripcion') || '';
+            }
+        });
+    }
+
+    // 2. Cargar capítulos vía REST API cuando cambia la novela en "Editar Capítulo"
+    const capNovelaSelect = document.getElementById('cap_novela_select');
+    if (capNovelaSelect) {
+        capNovelaSelect.addEventListener('change', async (e) => {
+            const novelaId = e.target.value;
+            const selectCap = document.getElementById('edit_capitulo_id');
+            selectCap.innerHTML = '<option value="">Cargando capítulos...</option>';
+
+            if (!novelaId) return;
+
+            try {
+                const response = await fetch(`https://ahprflxvnrovrwxaojrw.supabase.co/rest/v1/capitulos?select=id,Titulo,Contenido_markdown,Capitulo&novela_id=eq.${novelaId}&order=Capitulo.asc`, {
+                    headers: {
+                        'apikey': 'sb_publishable_W0IkvLXPpoLZ0fNBk_RENg_iNcnFRuf',
+                        'Authorization': 'Bearer sb_publishable_W0IkvLXPpoLZ0fNBk_RENg_iNcnFRuf'
+                    }
+                });
+                const data = await response.json();
+
+                selectCap.innerHTML = '<option value="">-- Seleccionar Capítulo --</option>';
+                data.forEach(cap => {
+                    const opt = document.createElement('option');
+                    opt.value = cap.id;
+                    opt.textContent = `Cap. ${cap.Capitulo}: ${cap.Titulo}`;
+                    opt.dataset.titulo = cap.Titulo;
+                    opt.dataset.markdown = cap.Contenido_markdown;
+                    selectCap.appendChild(opt);
+                });
+            } catch (err) {
+                selectCap.innerHTML = '<option value="">Error al cargar capítulos</option>';
+            }
+        });
+    }
+
+    // 3. Rellenar campos del capítulo seleccionado
+    const editCapituloId = document.getElementById('edit_capitulo_id');
+    if (editCapituloId) {
+        editCapituloId.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                document.getElementById('edit_titulo_capitulo').value = selectedOption.dataset.titulo || '';
+                document.getElementById('edit_contenido_markdown').value = selectedOption.dataset.markdown || '';
+            }
+        });
+    }
 });
 
 /** 

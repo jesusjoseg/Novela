@@ -138,7 +138,7 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
                     <p>Aún no hay capítulos subidos para esta novela.</p>
                 <?php endif; ?>
             </div>
-
+            <?php include 'anuncio2.php'; ?>
             <!-- Sección de Comentarios -->
             <div class="seccion-comentarios">
                 <h3>Comentarios (<?php echo count($lista_comentarios); ?>)</h3>

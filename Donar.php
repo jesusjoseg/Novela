@@ -46,6 +46,7 @@ session_start();
                 </div>
             </div>
         </main>
+        <?php include 'anuncio.php'; ?>
     </div>
     <?php include'footer.php'?>
 </body>

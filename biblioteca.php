@@ -21,6 +21,7 @@ include 'HHH/Conexion.php';
                         <h3>Buscar por titulo</h3>
                         <input type="text" name="texto" class="finder-input">
                     </div>
+                    
                     <div>
                         <h3>Ordena por:</h3>
                         <select name="orden" class="finder-select">
@@ -82,9 +83,11 @@ include 'HHH/Conexion.php';
                 </form>
             </aside>
             <main class="result-area">
+                
                 <div class="novelas-grid" id="biblioteca-grid">
-
+                    
                 </div>
+                <?php include 'anuncio.php'; ?>
             </main>
             <script src="biblioteca.js"></script>
         </div>

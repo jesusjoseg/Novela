@@ -30,7 +30,7 @@ $total_paginas_mostrar = 20;
 
     <div class="container" style="padding-top: 20px; padding-bottom: 40px;">
         <h1 class="seccion-titulo" style="margin-bottom: 25px;">Últimos Capítulos Subidos</h1>
-
+        <?php include 'anuncio.php'; ?>
         <div class="grid-capitulos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
             <?php if (!empty($ultimos_capitulos)): ?>
                 <?php foreach ($ultimos_capitulos as $item): 

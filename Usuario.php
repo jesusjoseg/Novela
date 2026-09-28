@@ -381,7 +381,9 @@ $es_premium = !empty($datos_usuario['es_premium']);
         </div>
 
         <!-- 3. BOTÓN DE CIERRE DE SESIÓN -->
+         <a href="Eliminar.php">Eliminar Cuentra</a>
         <a href="logout.php" class="logout-button">Cerrar Sesión</a>
+
     </div>
 
     <!-- MODAL DE EDICIÓN DE PERFIL -->

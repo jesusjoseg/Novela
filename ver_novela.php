@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nuevo_comentario'])) 
 }
 
 // 6. Obtener la lista de comentarios uniendo con la tabla de usuarios
-$res_comentarios = supabase_request("comentarios?novela_id=eq.{$id_novela}&select=id,comentario,creado_en,usuarios(nombre)&order=creado_en.desc");
+$res_comentarios = supabase_request("comentarios?novela_id=eq.{$id_novela}&select=id,comentario,fecha,usuarios(nombre)&order=fecha.desc");
 
 if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
     $lista_comentarios = $res_comentarios;
@@ -158,7 +158,7 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
                             <div class="comentario-card">
                                 <div class="comentario-header">
                                     <strong class="comentario-usuario"><?php echo htmlspecialchars($com['usuarios']['nombre'] ?? 'Usuario'); ?></strong>
-                                    <span class="comentario-fecha"><?php echo $com['creado_en'] ?? ''; ?></span>
+                                    <span class="comentario-fecha"><?php echo $com['fecha'] ?? ''; ?></span>
                                 </div>
                                 <p class="comentario-texto"><?php echo nl2br(htmlspecialchars($com['comentario'] ?? '')); ?></p>
                             </div>

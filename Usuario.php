@@ -73,6 +73,7 @@ $es_premium = !empty($datos_usuario['es_premium']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Foxnovel</title>
     <link rel="stylesheet" href="Style.css">
+    
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <style>
         body {

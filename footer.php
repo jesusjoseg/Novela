@@ -21,7 +21,7 @@
             <h4>Sostenimiento</h4>
             <a href="Donar.php" class="btn-donar">❤️ Donaciones</a>
             <div class="social-links">
-                <a href="#" target="_blank" aria-label="Facebook" class="social-icon facebook"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61595068404204" target="_blank" aria-label="Facebook" class="social-icon facebook"><i class="fa-brands fa-facebook"></i></a>
             </div>
         </div>
     </div>

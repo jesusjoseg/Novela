@@ -75,6 +75,7 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
     <link rel="stylesheet" href="Style.css">
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
 </head>
 <body>
     <?php include 'Header.php'; ?>

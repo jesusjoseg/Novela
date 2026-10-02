@@ -167,6 +167,10 @@
                     <span class="info-label">Seguridad:</span>
                     <span class="info-val" style="color: #4caf50;">✓ Escaneado (Seguro)</span>
                 </div>
+                <div class="info-row">
+                    <span class="info-label">Tamaño:</span>
+                    <span class="info-val">109 MB</span>
+                </div>
             </div>
 
             <!-- Bloque de Anuncio publicitario (320x50) -->

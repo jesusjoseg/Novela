@@ -22,6 +22,10 @@
                     <input type="text" name="Apellido" id="Apellido"class="finder-input"required>
                 </div>
                 <div class="form-group">
+                    <h3>Nombre de Usuario:</h3>
+                    <input type="text" name="username" id="username"class="finder-input"required>
+                </div>
+                <div class="form-group">
                     <h3>Correo:</h3>
                     <input type="email" name="Correo" id="Correo"class="finder-input"required>
                 </div>

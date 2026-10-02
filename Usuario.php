@@ -378,6 +378,11 @@ $es_premium = !empty($datos_usuario['es_premium']);
                     <div style="font-weight: bold; font-size: 15px;">✨ Convertirme en Creador</div>
                     <div class="creator-subtext">Solicita la verificación para publicar tus propias novelas</div>
                 </a>
+                <form action="Usuario.php" method="post">
+                    <input type="text" name="donar" id="donar">
+                    <input type="submit" value="">
+                </form>
+                
             <?php endif; ?>
         </div>
 

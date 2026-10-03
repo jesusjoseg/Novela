@@ -8,5 +8,5 @@
     'params' : {}
   };
 </script>
-<script src="https://www.highrevenueformat.com/759081cbfbb3eb3284acc4a47dd43af3/invoke.js"></script>ç
+<script src="https://www.highrevenueformat.com/759081cbfbb3eb3284acc4a47dd43af3/invoke.js"></script>
 </div>

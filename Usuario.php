@@ -13,35 +13,51 @@ $usuario_id = $_SESSION['usuario_id'];
 $mensaje_perfil = "";
 $error_perfil = "";
 
-// 1. Procesar actualización de perfil (nombre y avatar vía PATCH)
+// 1. Procesar actualización de perfil (nombre, username, link_donacion, avatar vía PATCH)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'actualizar_perfil') {
     $nuevo_nombre = trim($_POST['nombre'] ?? '');
+    $nuevo_username_input = trim($_POST['username'] ?? '');
+    $nuevo_link_donacion = trim($_POST['link_donacion'] ?? '');
     $avatar_url = trim($_POST['avatar'] ?? '');
 
-    if (!empty($nuevo_nombre)) {
-        // Mapeo exacto según tu tabla 'usuario' (todo en minúsculas)
-        $dataUpdate = [
-            'nombre' => $nuevo_nombre,
-            'avatar' => $avatar_url
-        ];
+    // Limpiar el username: solo letras, números y guiones bajos en minúscula
+    $nuevo_username = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', $nuevo_username_input));
 
-        // PATCH a la API REST de Supabase filtrando por ID
-        $resUpdate = supabase_request('usuario?id=eq.' . $usuario_id, 'PATCH', $dataUpdate);
-
-        if (isset($resUpdate['error'])) {
-            $error_perfil = "Error al actualizar los datos en Supabase.";
-        } else {
-            $_SESSION['usuario_nombre'] = $nuevo_nombre;
-            $mensaje_perfil = "¡Perfil actualizado correctamente!";
-        }
-    } else {
+    if (empty($nuevo_nombre)) {
         $error_perfil = "El nombre no puede estar vacío.";
+    } elseif (empty($nuevo_username)) {
+        $error_perfil = "El nombre de usuario (@username) no puede estar vacío ni contener espacios o símbolos especiales.";
+    } else {
+        // Verificar si el username ya pertenece a otro usuario en Supabase
+        $checkUsername = supabase_request('usuario?select=id&username=eq.' . $nuevo_username . '&id=neq.' . $usuario_id, 'GET');
+
+        if (!isset($checkUsername['error']) && is_array($checkUsername) && count($checkUsername) > 0) {
+            $error_perfil = "El nombre de usuario @" . htmlspecialchars($nuevo_username) . " ya está ocupado por otra persona.";
+        } else {
+            // Mapeo exacto según tu tabla 'usuario'
+            $dataUpdate = [
+                'nombre'        => $nuevo_nombre,
+                'username'      => $nuevo_username,
+                'link_donacion' => $nuevo_link_donacion,
+                'avatar'        => $avatar_url
+            ];
+
+            // PATCH a la API REST de Supabase filtrando por ID
+            $resUpdate = supabase_request('usuario?id=eq.' . $usuario_id, 'PATCH', $dataUpdate);
+
+            if (isset($resUpdate['error'])) {
+                $error_perfil = "Error al actualizar los datos en la base de datos.";
+            } else {
+                $_SESSION['usuario_nombre'] = $nuevo_nombre;
+                $mensaje_perfil = "¡Perfil actualizado correctamente!";
+            }
+        }
     }
 }
 
 // 2. Obtener la información del usuario con los campos exactos de tu tabla
 $datos_usuario = null;
-$resUser = supabase_request('usuario?select=id,nombre,email,rol,es_premium,fecha_registro,avatar&id=eq.' . $usuario_id, 'GET');
+$resUser = supabase_request('usuario?select=id,nombre,username,link_donacion,email,rol,es_premium,fecha_registro,avatar&id=eq.' . $usuario_id, 'GET');
 
 if (!isset($resUser['error']) && is_array($resUser) && count($resUser) > 0) {
     $datos_usuario = $resUser[0];
@@ -59,12 +75,14 @@ if (!isset($resFav['error']) && is_array($resFav)) {
     }
 }
 
-// Mapeo de variables utilizando las claves en minúsculas recibidas de Supabase
-$nombre_usuario = $datos_usuario['nombre'] ?? 'Usuario';
-$email_usuario = $datos_usuario['email'] ?? '';
-$avatar_usuario = !empty($datos_usuario['avatar']) ? $datos_usuario['avatar'] : 'https://via.placeholder.com/120/ff6b35/FFFFFF?text=User';
-$rol = strtolower($datos_usuario['rol'] ?? 'lector');
-$es_premium = !empty($datos_usuario['es_premium']);
+// Mapeo de variables
+$nombre_usuario   = $datos_usuario['nombre'] ?? 'Usuario';
+$username_usuario = $datos_usuario['username'] ?? '';
+$donacion_usuario = $datos_usuario['link_donacion'] ?? '';
+$email_usuario    = $datos_usuario['email'] ?? '';
+$avatar_usuario   = !empty($datos_usuario['avatar']) ? $datos_usuario['avatar'] : 'https://via.placeholder.com/120/ff6b35/FFFFFF?text=User';
+$rol              = strtolower($datos_usuario['rol'] ?? 'lector');
+$es_premium       = !empty($datos_usuario['es_premium']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -122,8 +140,15 @@ $es_premium = !empty($datos_usuario['es_premium']);
             margin: 0;
         }
 
+        .user-username {
+            font-size: 15px;
+            color: #ff6b35;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
         .user-email {
-            font-size: 14px;
+            font-size: 13px;
             color: #8e8e93;
             margin-top: 4px;
         }
@@ -168,7 +193,7 @@ $es_premium = !empty($datos_usuario['es_premium']);
             cursor: pointer;
         }
 
-        /* 2. SECCIÓN DE CREADOR */
+        /* 2. SECCIÓN DE CREADOR Y AJUSTES */
         .section-container {
             width: 100%;
             background-color: #1a1613;
@@ -188,7 +213,7 @@ $es_premium = !empty($datos_usuario['es_premium']);
 
         .creator-btn-active {
             background-color: #ff6b35;
-            padding: 16px;
+            padding: 14px;
             border-radius: 8px;
             text-align: center;
             color: #FFFFFF;
@@ -196,6 +221,7 @@ $es_premium = !empty($datos_usuario['es_premium']);
             font-size: 15px;
             text-decoration: none;
             display: block;
+            margin-bottom: 15px;
         }
 
         .creator-btn-request {
@@ -229,7 +255,23 @@ $es_premium = !empty($datos_usuario['es_premium']);
             margin: 0;
         }
 
-        /* 3. BOTÓN DE CIERRE DE SESIÓN */
+        /* BOTONES DE ACCIÓN SECUNDARIOS */
+        .action-links {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .delete-account-btn {
+            color: #8e8e93;
+            text-align: center;
+            font-size: 13px;
+            text-decoration: underline;
+            padding: 5px;
+        }
+
         .logout-button {
             width: 100%;
             background-color: #2A1515;
@@ -264,7 +306,7 @@ $es_premium = !empty($datos_usuario['es_premium']);
             padding: 20px;
             border-radius: 12px;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
         }
 
         .modal-title {
@@ -337,6 +379,7 @@ $es_premium = !empty($datos_usuario['es_premium']);
         <div class="profile-header">
             <img src="<?php echo htmlspecialchars($avatar_usuario); ?>" alt="Avatar" class="avatar">
             <h1 class="user-name"><?php echo htmlspecialchars($nombre_usuario); ?></h1>
+            <span class="user-username"><?php echo $username_usuario ? '@' . htmlspecialchars($username_usuario) : 'Sin @username'; ?></span>
             <span class="user-email"><?php echo htmlspecialchars($email_usuario); ?></span>
 
             <!-- Badges de Rol y Premium -->
@@ -378,17 +421,14 @@ $es_premium = !empty($datos_usuario['es_premium']);
                     <div style="font-weight: bold; font-size: 15px;">✨ Convertirme en Creador</div>
                     <div class="creator-subtext">Solicita la verificación para publicar tus propias novelas</div>
                 </a>
-                <form action="Usuario.php" method="post">
-                    <input type="text" name="donar" id="donar">
-                    <input type="submit" value="">
-                </form>
-                
             <?php endif; ?>
         </div>
 
-        <!-- 3. BOTÓN DE CIERRE DE SESIÓN -->
-         <a href="Eliminar.php">Eliminar Cuentra</a>
-        <a href="logout.php" class="logout-button">Cerrar Sesión</a>
+        <!-- 3. ACCIONES DE CUENTA -->
+        <div class="action-links">
+            <a href="logout.php" class="logout-button">Cerrar Sesión</a>
+            <a href="Eliminar.php" class="delete-account-btn">Eliminar Cuenta</a>
+        </div>
 
     </div>
 
@@ -397,11 +437,17 @@ $es_premium = !empty($datos_usuario['es_premium']);
         <div class="modal-content">
             <div class="modal-title">Editar Perfil</div>
             
-            <form action="usuario.php" method="POST">
+            <form action="Usuario.php" method="POST">
                 <input type="hidden" name="accion" value="actualizar_perfil">
 
-                <label class="input-label">Nombre de Usuario:</label>
+                <label class="input-label">Nombre Completo / Visible:</label>
                 <input type="text" name="nombre" class="input-field" value="<?php echo htmlspecialchars($nombre_usuario); ?>" required>
+
+                <label class="input-label">Nombre de Usuario (@username único):</label>
+                <input type="text" name="username" class="input-field" value="<?php echo htmlspecialchars($username_usuario); ?>" placeholder="ej. juan_escritor" required>
+
+                <label class="input-label">Link de Donaciones (PayPal / Ko-fi / Patreon):</label>
+                <input type="url" name="link_donacion" class="input-field" value="<?php echo htmlspecialchars($donacion_usuario); ?>" placeholder="https://paypal.me/tuusuario">
 
                 <label class="input-label">URL de Avatar:</label>
                 <input type="url" name="avatar" class="input-field" value="<?php echo htmlspecialchars($datos_usuario['avatar'] ?? ''); ?>" placeholder="https://ejemplo.com/avatar.jpg">

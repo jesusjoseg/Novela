@@ -80,7 +80,17 @@ $nombre_usuario   = $datos_usuario['nombre'] ?? 'Usuario';
 $username_usuario = $datos_usuario['username'] ?? '';
 $donacion_usuario = $datos_usuario['link_donacion'] ?? '';
 $email_usuario    = $datos_usuario['email'] ?? '';
-$avatar_usuario   = !empty($datos_usuario['avatar']) ? $datos_usuario['avatar'] : 'https://via.placeholder.com/120/ff6b35/FFFFFF?text=User';
+// sacar iniciales para la foto de pefil de default
+$palabra = explode(' ', preg_replace('/\s+/', ' ', trim($nombre_usuario)));
+$inicial='';
+if(isset($palabra[0])){
+    $inicial.= mb_substr($palabra[0],0,1,'UTF-8');
+}
+if(isset($palabra[1])){
+    $inicial .= mb_substr($palabra[1],0,1,'UTF-8');
+}
+$textoinicia=urlencode(strtoupper($inicial));
+$avatar_usuario   = !empty($datos_usuario['avatar']) ? $datos_usuario['avatar'] : 'https://placehold.co/80/ff6b35/FFFFFF?text=' .$textoinicia;
 $rol              = strtolower($datos_usuario['rol'] ?? 'lector');
 $es_premium       = !empty($datos_usuario['es_premium']);
 ?>
@@ -426,8 +436,8 @@ $es_premium       = !empty($datos_usuario['es_premium']);
 
         <!-- 3. ACCIONES DE CUENTA -->
         <div class="action-links">
-            <a href="logout.php" class="logout-button">Cerrar Sesión</a>
-            <a href="Eliminar.php" class="delete-account-btn">Eliminar Cuenta</a>
+            <a href="HHH/Cerra.php" class="logout-button">Cerrar Sesión</a>
+            <a href="Eliminar.php" class="logout-button delete-account-btn">Eliminar Cuenta</a>
         </div>
 
     </div>

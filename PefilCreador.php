@@ -39,10 +39,45 @@ if (!empty($link_donacion) && !preg_match("~^(?:f|ht)tps?://~i", $link_donacion)
 <body>
     <?php include 'Header.php' ?>
     <div class="main-container">
-        <?php  ?>
+        <?php  include 'anuncio.php'?>
         <?php if($creador): ?>
+            <div class="card-creador">
+                <img src="<?php echo htmlspecialchars($creador['avatar']??'https://placehold.co/80/ff6b35/FFFFFF?text=User') ?>"/>
+                <h1><?php echo htmlspecialchars($creador['nombre']) ?></h1>
+                <?php if(!empty($creador['username'])): ?>
+                    <span></span>
+                <?php endif; ?>
+                <div class="badge-creador">
+                    <span></span>
+                </div>
+            </div>
+            <?php  if (!empty($link_donacion)): ?>
+                <div class="donaciones-card">
+                    <div>
+                        <p>apoya directamente al creador</p>
+                    </div>
+                    <div>
+                        <p>Las contribuciones van directamente al autor <strong style="color: '#ff6b35';">sin intermediarios</strong>.</p>
+                    </div>
+                    <a href="http://" target="_blank" rel="noopener noreferrer">Apoyar/ Donar al creador</a>
+                </div>
+            <?php endif; ?>
+            <div class="section-title">
+                <h3>Obras publicadas</h3>
+            </div>
+            <?php if (count($novela)>0): ?>
+                <div>
+
+                </div>
+            <?php else: ?>
+                <div>
+                    <p></p>
+                </div>
+            <?php endif; ?>
+        <?php else: ?>
             <div>
-                <img src="<?php echo htmlspecialchars($creador['avatar']??'') ?>"
+                <p></p>
+                <a href=""></a>
             </div>
         <?php endif; ?>
     </div>

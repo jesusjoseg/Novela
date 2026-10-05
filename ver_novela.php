@@ -84,6 +84,15 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
         <aside class="novela-sidebar">
             <img src="<?php echo htmlspecialchars($novela['Portada'] ?? ''); ?>" class="novela-portada" alt="<?php echo htmlspecialchars($novela['Titulo'] ?? ''); ?>">
             <div class="novela-ficha">
+                <p><strong>Autor: </strong> <?php $usuario_creador = $novela['usuario']?? null;
+                $usuario_id_creador =$novela['usuario_id']??($usuario_creador['id']??null);
+                if (!empty($usuario_id_creador)):
+                    $nombre_creador=$usuario_creador['nombre']??$novela['autor_original']?? 'ver Pefil';
+                ?>
+                <a href="PefilCreador.php?id=<?php echo $usuario_id_creador ?>" class="link-autor"> <?php echo htmlspecialchars($nombre_creador) ?></a>
+                <?php else: ?>
+                    <span><?php echo htmlspecialchars($novela['autor_original']) ?></span>
+                <?php endif; ?>
                 <p><strong>Género: </strong> <?php echo htmlspecialchars($novela['Genero'] ?? ''); ?></p>
                 <p><strong>Estado: </strong> <?php echo htmlspecialchars($novela['Estado'] ?? ''); ?></p>
                 <p><strong>Visitas: </strong> <?php echo htmlspecialchars($novela['Visitas'] ?? 0); ?></p>

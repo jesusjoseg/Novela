@@ -990,7 +990,130 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     text-overflow: ellipsis;
     max-width: 100%;
 }
-
+.link-autor{
+    color: #ff6b35;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.link-autor:hover{
+    color:#f7c59f;
+    text-decoration: underline;
+}
+.link-autor::after{
+    content:"\f058";
+    font-family: "font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.8em;
+}
+.card-creador{
+    background-color: #1a1613;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #3b3129;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.avatar-creador{
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 2px solid #ff6b35;
+}
+.nombre-creador{
+    color: #f5ebe6;
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0;
+}
+.username-creador{
+    color: #ff6b35;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+.badge-text{
+    color: #ff6b35;
+    font-size: 11px;
+    font-weight: bold;
+}
+.donaciones-card{
+   text-align: center;            /* Centra el texto y botón */
+    display: flex;
+    flex-direction: column;
+    align-items: center;           /* Centra los elementos horizontalmente */
+    justify-content: center;
+    padding: 25px 20px;
+    margin: 20px 0;
+    background-color: #1e1e1e;     /* Tu fondo oscuro */
+    border-radius: 12px;
+}
+.donaciones-titulo{
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    text-transform: capitalize;
+}
+.donaciones-sub{
+    color: #cccccc;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+}
+.section-title{
+    color: #f5ebe6;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+.grid-novelas{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+.card-novela{
+    width: 180px;                /* Ancho fijo para mantener la proporción de portada */
+    background-color: #1a1a1a;   /* Fondo oscuro acorde a tu tema */
+    border-radius: 8px;
+    overflow: hidden;            /* Mantiene bordes redondeados en la imagen */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.img-portada{
+    width: 100%;
+    height: 240px;               /* Mayor altura para respetar la proporción 2:3 vertical */
+    object-fit: cover;
+    object-position: center;     /* Centra la imagen al encuadrar */
+    display: block;
+}
+.info-novela{
+    padding: 10px 8px;
+.titulo-novela{
+    color: #f5ebe6;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.genero-novela{
+    color: #ff6b35;
+    font-size: 11px;
+    margin-top: 6px;
+    display: block;
+    white-space: nowrap;          /* Evita saltos desordenados si hay muchos géneros */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 /* ==========================================
    MEDIAS QUERIES / ADAPTABILIDAD MÓVIL
    ========================================== */

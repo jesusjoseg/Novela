@@ -7,6 +7,7 @@ $novela = null;
 $primer_capitulo_id = null;
 $lista_capitulo = [];
 $lista_comentarios = [];
+$capitulos_vistos=[];
 
 if ($id_novela <= 0) {
     header("Location: index.php");
@@ -40,7 +41,13 @@ if (!empty($res_capitulos) && !isset($res_capitulos['error'])) {
     $lista_capitulo = $res_capitulos;
     $primer_capitulo_id = $lista_capitulo[0]['id'];
 }
-
+$usuario_id=$_SESSION['usuario_id']?? $_SESSION['id']??null;
+if($usuario_id){
+    $res_vistos= supabase_request("progreso_lectura?usuario_id=eq.{$usuario_id}&novela_id=eq.{$id_novela}&select=capitulo_id");
+    if(!empty($res_vistos)&& !isset($res_vistos['error'])){
+        $capitulos_vistos= array_column($res_vistos,'capitulo_id');
+    }
+}
 // 5. Procesar el envío de un nuevo comentario
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nuevo_comentario'])) {
     $comentario_texto = trim($_POST['nuevo_comentario']);
@@ -95,7 +102,7 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
                 <?php endif; ?>
                 <p><strong>Género: </strong> <?php echo htmlspecialchars($novela['Genero'] ?? ''); ?></p>
                 <p><strong>Estado: </strong> <?php echo htmlspecialchars($novela['Estado'] ?? ''); ?></p>
-                <p><strong>Visitas: </strong> <?php echo htmlspecialchars($novela['Visitas'] ?? 0); ?></p>
+                <p><strong>Visitas: </strong> <span id="contador-visitas"data-id="<?php echo $id_novela; ?>"><?php echo htmlspecialchars($novela['Visitas'] ?? 0); ?></span></p>
             </div>
         </aside>
         <main class="novela-contenido">
@@ -119,6 +126,8 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
                         $fecha_actual = new DateTime();
                         foreach ($lista_capitulo as $cap): 
                             $num_cap = intval($cap['Capitulo'] ?? 0);
+                            $cap_id =intval($cap['id']);
+                            $ya_leido= in_array($cap_id,$capitulos_vistos);
                             
                             $bloqueado = false;
                             $diferencia_dias = 0;
@@ -137,8 +146,11 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
                                         <small>(Disponible con VIP o en <?php echo (15 - $diferencia_dias); ?> días)</small>
                                     </span>
                                 <?php else: ?>
-                                    <a href="leer_capitulo.php?id=<?php echo $cap['id']; ?>&novela_id=<?php echo $id_novela; ?>">
+                                    <a href="leer_capitulo.php?id=<?php echo $cap['id']; ?>&novela_id=<?php echo $id_novela; ?>" class="<?php echo $ya_leido ?'capitulo-visto':''; ?>">
                                         Capítulo <?php echo $num_cap; ?>: <?php echo htmlspecialchars($cap['Titulo'] ?? ''); ?>
+                                        <?php if ($ya_leido): ?>
+                                            <i class="fa-solid fa-eye" style="color:#ff6b35;margin-left:8px"title="Capitulo leido"></i>
+                                        <?php endif; ?>
                                     </a>
                                 <?php endif; ?>
                             </li>
@@ -183,5 +195,6 @@ if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
        </div> 
     </div>
     <?php include 'footer.php'; ?>
+    <script src="visitas.js"></script>
 </body>
 </html>

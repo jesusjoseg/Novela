@@ -1094,6 +1094,7 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
 }
 .info-novela{
     padding: 10px 8px;
+}
 .titulo-novela{
     color: #f5ebe6;
     font-size: 13px;
@@ -1162,7 +1163,12 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
         gap: 10px;
         justify-content: center;
     }
-
+    .lista_capitulos a.capitulo-visto{
+        color:#9c928c;
+    }
+    .lista_capitulos a.capitulo-visto:hover{
+        color:#ff6b35
+    }
     header ul li {
         padding: 10px 0;
         font-size: 14px;

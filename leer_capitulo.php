@@ -19,15 +19,15 @@ if ($id_capitulo > 0) {
 
         //
         $usuario_id=$_SESSION['usuario_id']??$_SESSION['id']??null;
-        if ($usuario_id){
+        if ($usuario_id && $id_capitulo>0){
             $check_progreso = supabase_request("progreso_lectura?usuario_id=eq.{$usuario_id}&capitulo_id=eq.{$id_capitulo}&select=id");
-            if(empty($check_progreso)|| isset($check_progreso['error'])){
+            if(is_array($check_progreso) && empty($check_progreso)){
                 $nuevo_progreso=[
-                    'usuario_id'=> $usuario_id,
-                    'novela_id' => $novela_id,
-                    'capitulo_id' =>$id_capitulo
+                    'usuario_id'=> intval($usuario_id),
+                    'novela_id' => intval($novela_id),
+                    'capitulo_id' =>intval($id_capitulo)
                 ];
-                supabase_request('progeso_lectura','POST',$nuevo_progreso);
+                $respue=supabase_request('progreso_lectura','POST',$nuevo_progreso);
             }
         }
         // 2. Buscar Capítulo Anterior

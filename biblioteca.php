@@ -7,7 +7,20 @@ include 'HHH/Conexion.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoxNovel--Biblioteca</title>
+    
+    <!-- Meta Etiquetas SEO -->
+    <title>Biblioteca de Novelas - Buscar por Género y Filtros | FoxNovel</title>
+    <meta name="description" content="Filtra y busca novelas por género: Isekai, Fantasía, Romance, Xianxia, Cultivo, Acción y más. Encuentra tu próxima lectura en FoxNovel.">
+    <meta name="keywords" content="buscador de novelas, buscador de isekai, biblioteca de novelas ligeras, novelas por genero, foxnovel">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://foxnovel.com/Biblioteca.php">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Biblioteca de Novelas Ligeras - FoxNovel">
+    <meta property="og:description" content="Explora nuestro catálogo completo filtrando por géneros como Isekai, Fantasía y Romance.">
+    <meta property="og:image" content="https://foxnovel.com/icon.png">
+    <meta property="og:url" content="https://foxnovel.com/Biblioteca.php">
+
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <link rel="stylesheet" href="Style.css">
 </head>

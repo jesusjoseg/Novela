@@ -72,17 +72,42 @@ $res_comentarios = supabase_request("comentarios?novela_id=eq.{$id_novela}&selec
 if (!empty($res_comentarios) && !isset($res_comentarios['error'])) {
     $lista_comentarios = $res_comentarios;
 }
+$tituloSEO = htmlspecialchars(($novela['Titulo'] ?? 'Novela') . " - Leer Online Gratis | FoxNovel");
+$descripcionSEO = htmlspecialchars(mb_substr(strip_tags($novela['Descripcion'] ?? 'Lee la novela ' . ($novela['Titulo'] ?? '') . ' gratis en español en FoxNovel.'), 0, 155));
+$imagenSEO = htmlspecialchars($novela['Portada'] ?? 'https://foxnovel.com/icon.png');
+$generoSEO = htmlspecialchars($novela['Genero'] ?? 'Novelas');
+$urlSEO = "https://foxnovel.com/ver_novela.php?id=" . $id_novela;
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($novela['Titulo'] ?? 'Novela'); ?> - Lectura Novela</title>
+    
+    <!-- Meta SEO Dinámico por Novela -->
+    <title><?php echo $tituloSEO; ?></title>
+    <meta name="description" content="<?php echo $descripcionSEO; ?>">
+    <meta name="keywords" content="<?php echo $generoSEO; ?>, leer <?php echo htmlspecialchars($novela['Titulo'] ?? ''); ?>, novela <?php echo $generoSEO; ?>, foxnovel">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?php echo $urlSEO; ?>">
+
+    <!-- Open Graph (Muestra la portada de la novela al compartir el enlace) -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="<?php echo htmlspecialchars($novela['Titulo'] ?? 'Novela'); ?> - FoxNovel">
+    <meta property="og:description" content="<?php echo $descripcionSEO; ?>">
+    <meta property="og:image" content="<?php echo $imagenSEO; ?>">
+    <meta property="og:url" content="<?php echo $urlSEO; ?>">
+    <meta property="og:site_name" content="FoxNovel">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($novela['Titulo'] ?? 'Novela'); ?> - FoxNovel">
+    <meta name="twitter:description" content="<?php echo $descripcionSEO; ?>">
+    <meta name="twitter:image" content="<?php echo $imagenSEO; ?>">
+
     <link rel="stylesheet" href="Style.css">
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
 </head>
 <body>
     <?php include 'Header.php'; ?>

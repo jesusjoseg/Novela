@@ -20,7 +20,20 @@ $total_paginas_mostrar = 20;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Últimos Capítulos Subidos - Foxnovel</title>
+    
+    <!-- Meta Etiquetas SEO -->
+    <title>Últimos Capítulos Subidos - Actualizaciones Recientes | FoxNovel</title>
+    <meta name="description" content="Mantente al día con los últimos capítulos publicados de tus novelas favoritas en FoxNovel. Capítulos nuevos todos los días.">
+    <meta name="keywords" content="ultimos capitulos, actualizaciones de novelas, capitulos recientes, leer novelas al dia, foxnovel">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://foxnovel.com/Actualizacion.php">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Últimos Capítulos Subidos - FoxNovel">
+    <meta property="og:description" content="Consulta la lista de capítulos recién publicados en FoxNovel y no te pierdas la continuación de tus historias.">
+    <meta property="og:image" content="https://foxnovel.com/icon.png">
+    <meta property="og:url" content="https://foxnovel.com/Actualizacion.php">
+
     <link rel="stylesheet" href="Style.css">
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">

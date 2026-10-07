@@ -3,10 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Descargar FoxNovel APK v1.0.0</title>
+    
+    <!-- Meta Etiquetas SEO -->
+    <title>Descargar FoxNovel APK v1.0.0 para Android - App Oficial Gratis</title>
+    <meta name="description" content="Descarga la aplicación oficial de FoxNovel APK para Android. Lee novelas ligeras y web novels sin interrupciones desde tu móvil.">
+    <meta name="keywords" content="descargar foxnovel apk, app de novelas ligeras, foxnovel android, apk gratis novelas">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://foxnovel.ct.ws/descargar_apk.php">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Descargar FoxNovel APK Oficial">
+    <meta property="og:description" content="Lleva tus novelas favoritas a todas partes descargando la app de FoxNovel para Android.">
+    <meta property="og:image" content="https://foxnovel.ct.ws/icon.png">
+    <meta property="og:url" content="https://foxnovel.ct.ws/descargar_apk.php">
+
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <link rel="stylesheet" href="Style.css">
-
     <style>
         * {
             box-sizing: border-box;
@@ -97,7 +109,6 @@
             font-weight: 500;
         }
 
-        /* Ajuste de contenedor de anuncios para permitir el iframe de Adsterra */
         .ad-banner {
             margin: 15px 0;
             min-height: 60px;
@@ -173,18 +184,9 @@
                 </div>
             </div>
 
-            <!-- Bloque de Anuncio publicitario (320x50) -->
+            <!-- Espacio reservado para Banners limpios (Google AdSense o Banners estáticos) -->
             <div class="ad-banner">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : '290d939919b93580c9c249cee7d1062e',
-                        'format' : 'iframe',
-                        'height' : 50,
-                        'width' : 320,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="https://www.highrevenueformat.com/290d939919b93580c9c249cee7d1062e/invoke.js"></script>
+                <!-- Aquí puedes colocar tus banners sin redirecciones automáticas -->
             </div>
 
             <!-- Botón con Temporizador -->
@@ -192,7 +194,7 @@
                 Esperar <span id="timer">10</span> segundos...
             </button>
 
-            <p class="subtext">Al hacer clic serás redirigido a la descarga con un breve acortador que apoya el mantenimiento del servidor.</p>
+            <p class="subtext">Descarga directa y segura desde nuestros servidores en MediaFire.</p>
         </div>
     </main>
 
@@ -201,8 +203,8 @@
         const timerElement = document.getElementById('timer');
         const downloadBtn = document.getElementById('downloadBtn');
         
-        // Enlace acortado configurado
-        const downloadUrl = "https://ouo.io/ndyk6iF";
+        // Reemplaza esta URL con tu enlace directo de MediaFire
+        const downloadUrl = "https://www.mediafire.com/file/qjrdpy90lqvs1nd/FoxNovel_V1.0.0.apk/file";
 
         const countdown = setInterval(() => {
             seconds--;
@@ -214,9 +216,9 @@
                 clearInterval(countdown);
                 downloadBtn.classList.add('active');
                 downloadBtn.removeAttribute('disabled');
-                downloadBtn.innerHTML = "📥 Descargar APK Ahora";
+                downloadBtn.innerHTML = "📥 Descargar APK desde MediaFire";
                 
-                // Redirección al hacer clic
+                // Redirección directa al hacer clic
                 downloadBtn.onclick = function() {
                     window.open(downloadUrl, '_blank');
                 };

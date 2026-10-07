@@ -25,7 +25,28 @@ $ultimasActualizaciones = is_array($resUltimosCapitulos) && !isset($resUltimosCa
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lectura NOVELA - Foxnovel</title>
+    
+    <!-- Meta Etiquetas SEO de la Portada Principal -->
+    <title>FoxNovel - Leer Novelas Ligeras, Web Novels y Traducciones Gratis</title>
+    <meta name="description" content="Lee las mejores novelas ligeras, web novels y traducciones online gratis en FoxNovel. Descubre historias de Acción, Isekai, Fantasía, Romance y Artes Marciales en español.">
+    <meta name="keywords" content="novelas ligeras, leer novelas gratis, web novels en español, isekai, xianxia, novelas de fantasia, foxnovel, capitulos de novelas">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://foxnovel.com/index.php">
+
+    <!-- Open Graph (Para Facebook, WhatsApp, Twitter/X y Telegram) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="FoxNovel - Leer Novelas Ligeras y Web Novels Gratis">
+    <meta property="og:description" content="Miles de capítulos de novelas ligeras e isekai traducidos en español. ¡Comienza a leer gratis en FoxNovel!">
+    <meta property="og:image" content="https://foxnovel.com/icon.png">
+    <meta property="og:url" content="https://foxnovel.com/index.php">
+    <meta property="og:site_name" content="FoxNovel">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FoxNovel - Leer Novelas Ligeras Gratis">
+    <meta name="twitter:description" content="Tu biblioteca digital para leer web novels, isekai, fantasía y romance online.">
+    <meta name="twitter:image" content="https://foxnovel.com/icon.png">
+
     <link rel="stylesheet" href="Style.css">
     <link rel="shortcut icon" href="src/image/gemini-svg (1).ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">

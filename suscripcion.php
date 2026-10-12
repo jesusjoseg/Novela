@@ -25,9 +25,9 @@ $enlace_paypal = "https://www.paypal.com/ncp/payment/LWUHKENE43YWN";
 
 <body>
     <?php include 'Header.php'; ?>
-    <div>
-        <div>
-            <h1>Membresia FoxNovel</h1>
+    <div class="container my-5 pato">
+        <div class="pato-vip">
+            <h1>⭐ Membresía FoxNovel</h1>
             <p>Lee antes que nadie y apoya la plataforma</p>
         </div>
         <?php if ($es_vip): ?>
@@ -38,32 +38,33 @@ $enlace_paypal = "https://www.paypal.com/ncp/payment/LWUHKENE43YWN";
                 <a href="index.php">Ir al Catálogo</a>
             </div>
         <?php else: ?>
-            <div>
-                <div>
-                    <h3>Que incluye tu Pase VIP</h3>
+            <div class="principal-suc">
+                <div class="beneficios">
+                    <h3>Que Incluye tu Pase VIP</h3>
                     <ul>
-                        <li>Lectura Anticiapadas</li>
-                        <li>Experiencia fluidad de lectura</li>
-                        <li>Distintivo VIP en tu pefil.</li>
+                        <li><i class="fa-solid fa-bolt list-color1"></i> <strong> Lectura Anticiapadas</strong> Del cap. 16 en adelante sin esperar 15 días.</li>
+                        <li><i class="fa-solid fa-ban list-color2"></i> <strong>Sin Interrupciones:</strong> Experiencia fluidad de lectura</li>
+                        <li><i class="fa-solid fa-shield-cat list-color3"></i> <strong>Insignia Exclusiva:</strong> Distintivo VIP en tu pefil.</li>
                     </ul>
                 </div>
-                <div>
-                    <span></span>
-                    <h2></h2>
-                    <div>
-                        <small></small>
+                <div class="pago-vip">
+                    <span>Recomendado</span>
+                    <h2>Pase VIP Mensual</h2>
+                    <div class="pago-precio">
+                        <p>$85.00<small>MXN / mes</small></p>
+                        
                     </div>
-                    <p></p>
+                    <p>\</p>
                     <?php if ($usuario_id): ?>
-                        <a href="<?php echo $enlace_paypal ?>"><i></i>
+                        <a href="<?php echo $enlace_paypal; ?>" target="_blank" class="btn-paypal" ><i class="fa-brands fa-paypal"></i>
                     Pagar $85.00 MXN con Paypal</a>
-                        <?php if (file_exists('')): ?>
+                        <?php if (file_exists('src/imagen/Suscripcion de-qrcode.png')): ?>
                             <p></p>
-                            <img src="" alt="">
+                            <img src="src/image/Suscripcion de-qrcode.png" alt="">
                         <?php endif; ?>
                     <?php else: ?>
-                        <p></p>
-                        <a href=""></a>
+                        <p>Inicia sesión para asociar tu compra a tu cuenta.</p>
+                        <a href="Login.php">Iniciar Sesión</a>
                     <?php endif; ?>
                 </div>
             </div>

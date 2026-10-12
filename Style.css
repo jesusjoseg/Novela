@@ -1115,6 +1115,110 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.pago-vip{
+    flex: 1;
+    min-width: 280px;
+    background: #1a1613;
+    border: 1px solid #ffd700;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    position: relative;
+}
+.pago-vip span{
+    background: #ffd700;
+    color: #000;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    text-transform:uppercase ;
+}
+.pago-vip h2{
+    color: #fff;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+.pago-precio{
+    font-size: 2.2rem;
+    color: #ffd700;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.pago-vip a{
+    background: #3f63f4;
+    color: #000;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+.pago-vip img{
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    border: 2px solid #ffd700;
+}
+.beneficios{
+    flex: 1;
+    min-width: 280px;
+    background: #1a1613;
+    border: 1px solid #332b24;
+    border-radius: 12px;
+    padding: 25px;
+}
+.beneficios ul{
+    list-style: none;
+    padding: 0;
+    line-height: 2.2;
+    color: #ddd;
+    font-size: 0.95rem;
+}
+.beneficios li{
+    margin-right: 8px;
+}
+.list-color1{
+    color: #ffd700;
+}
+.list-color2{
+    color: #ef4444;
+}
+.list-color3{
+    color: #ff6b35;
+}
+.beneficios h3{
+    color: #ff6b35;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #332b24;
+    padding-bottom: 10px;
+}
+.pato-vip{
+    text-align: center;
+    margin-bottom: 35px;
+}
+.pato-vip h1{
+    color: #ffd700;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+.pato-vip p{
+    color: #aaa;
+    font-size: 1.05rem;
+}
+.pato{
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.principal-suc{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
 /* ==========================================
    MEDIAS QUERIES / ADAPTABILIDAD MÓVIL
    ========================================== */

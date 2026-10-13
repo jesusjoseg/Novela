@@ -1219,6 +1219,36 @@ box-shadow: 0 4px 15px rgba(0,0, 0, 0.5);
     flex-wrap: wrap;
     justify-content: center;
 }
+.felicidades{
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+.feliz{
+    font-size: 4rem;
+    color: #4ade80;
+    margin-bottom:20px ;
+}
+.felicidades h1{
+    color: #ffd700;
+    margin-bottom: 15px;
+}
+.felicidades p{
+    color: #ccc;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+.felicidades a{
+    background: #ff6b35;
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem;
+    display: inline-block;
+}
 /* ==========================================
    MEDIAS QUERIES / ADAPTABILIDAD MÓVIL
    ========================================== */

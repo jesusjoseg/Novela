@@ -406,9 +406,16 @@ $es_premium       = !empty($datos_usuario['es_premium']);
                 </div>
                 <?php if ($es_premium): ?>
                     <div class="role-badge premium-badge">
-                        <span class="role-text premium-text">⭐ Premium</span>
+                        <span class="role-text premium-text">⭐ Premium Activo</span>
                     </div>
                 <?php endif; ?>
+            </div>
+
+            <!-- ⭐️ AGREGAR ESTE BOTÓN DE SUSCRIPCIÓN AQUÍ ⭐️ -->
+            <div style="margin-top: 12px; width: 100%; text-align: center;">
+                <a href="suscripcion.php" style="background: #201a16; border: 1px solid #ffd700; color: #ffd700; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 13px; text-decoration: none; display: inline-block;">
+                    <i class="fa-solid fa-crown"></i> <?php echo $es_premium ? 'Ver Detalles de Membresía VIP' : 'Obtener Pase VIP Mensual'; ?>
+                </a>
             </div>
 
             <button class="edit-button" onclick="openModal()">Editar Perfil</button>

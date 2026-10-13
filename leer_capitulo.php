@@ -10,33 +10,49 @@ $cap_siguiente = null;
 
 if ($id_capitulo > 0) {
     // 1. Obtener datos del capítulo actual mediante Supabase REST
-    $resCap = supabase_request("capitulos?select=id,novela_id,Capitulo,Titulo,Contenido_markdown&id=eq.{$id_capitulo}");
+    $resCap = supabase_request("capitulos?select=id,novela_id,Capitulo,Titulo,Contenido_markdown,fecha_Publicacion&id=eq.{$id_capitulo}");
     
     if (is_array($resCap) && !empty($resCap) && !isset($resCap['error'])) {
         $capitulo = $resCap[0];
         $novela_id = $capitulo['novela_id'];
-        $num_cap = $capitulo['Capitulo'];
+        $num_cap = intval($capitulo['Capitulo']);
 
-        //
-        $usuario_id=$_SESSION['usuario_id']??$_SESSION['id']??null;
-        if ($usuario_id && $id_capitulo>0){
-            $check_progreso = supabase_request("progreso_lectura?usuario_id=eq.{$usuario_id}&capitulo_id=eq.{$id_capitulo}&select=id");
-            if(is_array($check_progreso) && empty($check_progreso)){
-                $nuevo_progreso=[
-                    'usuario_id'=> intval($usuario_id),
-                    'novela_id' => intval($novela_id),
-                    'capitulo_id' =>intval($id_capitulo)
-                ];
-                $respue=supabase_request('progreso_lectura','POST',$nuevo_progreso);
+        // 🔒 VALIDACIÓN DE SEGURIDAD VIP (BACKEND PHP - INVIOLABLE)
+        $es_vip = $_SESSION['usuario_vip'] ?? $_SESSION['es_vip'] ?? false;
+
+        if ($num_cap > 15 && !$es_vip) {
+            $fecha_actual = new DateTime();
+            $fecha_cap = new DateTime($capitulo['fecha_Publicacion'] ?? 'now');
+            $diferencia_dias = $fecha_actual->diff($fecha_cap)->days;
+
+            // Si tiene menos de 15 días de publicado y NO es VIP, bloqueamos el acceso inmediatamente
+            if ($diferencia_dias < 15) {
+                header("Location: suscripcion.php");
+                exit();
             }
         }
-        // 2. Buscar Capítulo Anterior
+
+        // 2. Registrar progreso de lectura
+        $usuario_id = $_SESSION['usuario_id'] ?? $_SESSION['id'] ?? null;
+        if ($usuario_id && $id_capitulo > 0) {
+            $check_progreso = supabase_request("progreso_lectura?usuario_id=eq.{$usuario_id}&capitulo_id=eq.{$id_capitulo}&select=id");
+            if (is_array($check_progreso) && empty($check_progreso)) {
+                $nuevo_progreso = [
+                    'usuario_id' => intval($usuario_id),
+                    'novela_id' => intval($novela_id),
+                    'capitulo_id' => intval($id_capitulo)
+                ];
+                supabase_request('progreso_lectura', 'POST', $nuevo_progreso);
+            }
+        }
+
+        // 3. Buscar Capítulo Anterior
         $resAnt = supabase_request("capitulos?select=id&novela_id=eq.{$novela_id}&Capitulo=lt.{$num_cap}&order=Capitulo.desc&limit=1");
         if (is_array($resAnt) && !empty($resAnt) && !isset($resAnt['error'])) {
             $cap_anterior = $resAnt[0]['id'];
         }
 
-        // 3. Buscar Capítulo Siguiente
+        // 4. Buscar Capítulo Siguiente
         $resSig = supabase_request("capitulos?select=id&novela_id=eq.{$novela_id}&Capitulo=gt.{$num_cap}&order=Capitulo.asc&limit=1");
         if (is_array($resSig) && !empty($resSig) && !isset($resSig['error'])) {
             $cap_siguiente = $resSig[0]['id'];

@@ -52,14 +52,12 @@ $enlace_paypal = "https://www.paypal.com/ncp/payment/LWUHKENE43YWN";
                     <h2>Pase VIP Mensual</h2>
                     <div class="pago-precio">
                         <p>$85.00<small>MXN / mes</small></p>
-                        
                     </div>
-                    <p>\</p>
                     <?php if ($usuario_id): ?>
                         <a href="<?php echo $enlace_paypal; ?>" target="_blank" class="btn-paypal" ><i class="fa-brands fa-paypal"></i>
                     Pagar $85.00 MXN con Paypal</a>
                         <?php if (file_exists('src/imagen/Suscripcion de-qrcode.png')): ?>
-                            <p></p>
+                            <p>O escanea el código QR:</p>
                             <img src="src/image/Suscripcion de-qrcode.png" alt="">
                         <?php endif; ?>
                     <?php else: ?>

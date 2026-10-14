@@ -130,7 +130,6 @@ $urlSEO = "https://foxnovel.com/ver_novela.php?id=" . $id_novela;
         <div class="novela-detalle-layout">
             <aside class="novela-sidebar">
                 <img src="<?php echo htmlspecialchars($novela['Portada'] ?? ''); ?>" class="novela-portada" alt="<?php echo htmlspecialchars($novela['Titulo'] ?? ''); ?>">
-
                 <!-- Botón VIP Promocional en Lateral -->
                 <?php if ($es_vip): ?>
                     <div></div>
@@ -162,7 +161,6 @@ $urlSEO = "https://foxnovel.com/ver_novela.php?id=" . $id_novela;
                 <h1 class="novela-titulo-principal"><?php echo htmlspecialchars($novela['Titulo'] ?? ''); ?></h1>
                 <h3>Sinopsis</h3>
                 <p class="novela-sinopsis"><?php echo htmlspecialchars($novela['Descripcion'] ?? ''); ?></p>
-
                 <div class="novela-acciones">
                     <?php if ($primer_capitulo_id): ?>
                         <a href="leer_capitulo.php?id=<?php echo $primer_capitulo_id; ?>&novela_id=<?php echo $id_novela; ?>" class="btn-leer">Comenzar a Leer</a>
@@ -170,7 +168,6 @@ $urlSEO = "https://foxnovel.com/ver_novela.php?id=" . $id_novela;
                         <span class="btn-disabled">Sin capítulos disponibles</span>
                     <?php endif; ?>
                 </div>
-
                 <div class="seccion-Capitulos">
                     <h3>Lista de Capítulos</h3>
                     <?php if (!empty($lista_capitulo)): ?>

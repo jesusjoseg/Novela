@@ -36,10 +36,10 @@ Novela/
 └── ...                 # Archivos de visualización de capítulos y backend
 ```
 
-🔒 Seguridad y Configuración de Base de Datos
+## 🔒 Seguridad y Configuración de Base de Datos
 El sistema utiliza Supabase para el almacenamiento seguro de los datos de usuarios, obras y capítulos. Las credenciales de conexión se gestionan de manera privada en el entorno del servidor para proteger la integridad de la base de datos.
 
-👥 Contribución y Normas del Sistema de Autores
+## 👥 Contribución y Normas del Sistema de Autores
 Para mantener la calidad y el orden en FoxNovel, el sistema de creación de contenido cuenta con las siguientes directrices:
 
 Permisos de Administrador: La creación de nuevas obras requiere aprobación previa de la administración para salvaguardar la estabilidad del sistema.
@@ -48,5 +48,5 @@ Contenido Original: Está prohibido subir contenido protegido por derechos de au
 
 Formato Estándar: Las publicaciones deben cumplir con los criterios mínimos de formato y ortografía.
 
-📄 Licencia
+## 📄 Licencia
 Este proyecto se encuentra bajo los términos de uso independientes de FoxNovel. Todos los derechos reservados sobre las adaptaciones y el desarrollo de la plataforma.
